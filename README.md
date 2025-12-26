@@ -41,7 +41,11 @@ Ensure you have [Bun](https://bun.sh) installed.
 ## ✍️ Adding Content
 
 ### Blog Posts
-Create a new `.mdx` file in the `/posts` directory. Ensure it has the correct frontmatter:
+You can quickly generate a new blog post with a prefilled template using:
+```bash
+bun new-post "Your Post Title"
+```
+Alternatively, manually create a new `.mdx` file in the `/posts` directory. Ensure it has the correct frontmatter:
 
 ```markdown
 ---
