@@ -1,0 +1,61 @@
+---
+title: "PM Artifacts Are Secretly Software Architecture"
+date: "2025-12-26"
+description: "Parallels between PM artifacts (service blueprints, use case diagrams, backlogs) and hexagonal software architecture—and how AI can bridge them."
+---
+
+Right now, I'm taking INFO 380 (UW Informatics's class on product management), and I have to say:
+
+I've noticed a **LOT** of parallels between representing implementation-adjacent product thinking on the PM side—think service blueprints, use case diagrams, backlogs—and actually building or architecting software as an engineer.
+
+It’s something that has been stuck in my head for weeks. We usually treat Product and Engineering as two distinct worlds with a "wall" in between. The PM throws a PRD (Product Requirements Document) over the wall, and the Engineer catches it and starts coding. But the more I look at the visual tools we use in product management, the more they look like blueprints for the code itself.
+
+I've been really interested in software architecture over the past couple of months, and have recently focused on learning **Hexagonal Architecture** (also known as Ports and Adapters).
+
+In (very) short: it organizes code into **use cases** for business logic, **ports** for standardization, and **adapters** for all the rest (like databases, UIs, or external APIs). It’s a way to keep your core logic clean and independent of frameworks.
+
+And here is where the bridge starts to form.
+
+## The Use Case Connection
+
+Use cases in hexagonal architecture break down features into specific actions a user can take, much like use case diagrams do in a PM context.
+
+If I draw a Use Case diagram where an "Admin" actor connects to a "Update Inventory" bubble, that isn't just a requirement. In Hexagonal Architecture, that is literally a class or a function in the core domain layer.
+
+Anything a use case connects to—like a database to store that inventory, or an LLM to generate a description—becomes an **adapter**. There’s a near one-to-one relationship between the use cases in these diagrams and those I might write in code.
+
+For example, if I'm mapping out a "User Login" flow in a diagram:
+* The **Actor** is the user taking the action
+* The **Action** is the Use Case service (the business rule).
+* The **Data Store** is the driven adapter (the SQL repository).
+
+The diagram is a request for functionality, yes, but it's also pretty much spelling out how things will be built in production.
+
+## Service Blueprints as Architectural Layers
+
+It gets even clearer when you look at **Service Blueprints**. For those who haven't used them, a service blueprint maps the relationship between different service components—people, props (physical or digital evidence), and processes—that are directly tied to touchpoints in a specific customer journey.
+
+I’ve realized these map very closely to software architecture layers:
+
+* **Front Stage (Visible to User):** This is your **Presentation Layer**. It’s the UI, the React components, the state management, and the event triggers. It’s exactly what the user interacts with.
+* **Back Stage (Invisible to User):** This is the **Application Layer**. This is where your use cases live. The user doesn't see the logic of "calculating shipping," but this layer handles the orchestration.
+* **Supporting Processes:** These are your **Infrastructure Adapters**. Think API endpoints, third-party services (like Stripe or SendGrid), and database persistence.
+
+Whether they realize it or not, when a PM builds a service blueprint to improve the customer experience, they're also designing the separation of concerns for the software architecture.
+
+## Applying AI
+
+At this point, I think AI could eventually take a service blueprint or use case diagram and generate plausible hexagonal architecture code.
+
+
+Because Hexagonal Architecture is so structured (Interfaces -> Implementations -> Adapters), it is highly predictable.
+
+If we can digitize a service blueprint into a structured format (like JSON or Mermaid.js), an LLM could interpret the "Line of Visibility" as the boundary between the Frontend and the Backend API. It could interpret the "Supporting Processes" as the necessary interface definitions for external tools.
+
+This would let more **technical product managers** hand off a clear starting point to engineers at a decent level of fidelity and accuracy.
+
+## The Future
+
+I'd venture to say the future of software development may well involve designing visually with these diagrams, converting them directly into code with AI, and having the software engineers handle bug fixing, optimization, and the edge cases the LLM missed.
+
+We aren't there strictly yet, but the pieces are fitting together, and the gap to get is there is more on the software side than the hardware/AI model side. And software moves fast.
