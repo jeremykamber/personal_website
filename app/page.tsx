@@ -14,9 +14,7 @@ export default function Home() {
         </h1>
         <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
           Full-stack Developer and Product Manager based in Seattle.
-          I build high-signal AI products and scalable web architectures.
-          Currently studying Informatics at the University of Washington and building tools
-          that bridge the gap between human intent and machine execution.
+          I build AI products, with a focus on making LLMs feel more human.
         </p>
       </section>
 
