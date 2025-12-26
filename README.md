@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jeremy Kamber | Personal Portfolio
 
-## Getting Started
+A radically minimalist personal website and portfolio built with **Next.js 14 (App Router)**, **Tailwind CSS**, and **shadcn/ui**. Detailed focus on typography and "Swiss Style" aesthetics.
 
-First, run the development server:
+## 🛠 Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS (Strict B&W Palette)
+- **Components**: shadcn/ui (Radix UI)
+- **Content**: MDX (via `next-mdx-remote`)
+- **Font**: Geist Sans (Variable)
+
+## 📁 Structure
+
+- `/app`: Main application routes and global layout.
+- `/app/blog`: Dynamic blog index and post rendering.
+- `/app/portfolio`: Project showcase grid.
+- `/posts`: MDX files for blog content.
+- `/components`: Shared React components and shadcn UI primitives.
+- `/lib`: Utility functions and post parsing logic.
+
+## 🚀 Getting Started
+
+Ensure you have [Bun](https://bun.sh) installed.
+
+1. **Install dependencies**:
+   ```bash
+   bun install
+   ```
+
+2. **Run dev server**:
+   ```bash
+   bun dev
+   ```
+
+3. **Build for production**:
+   ```bash
+   bun run build
+   ```
+
+## ✍️ Adding Content
+
+### Blog Posts
+Create a new `.mdx` file in the `/posts` directory. Ensure it has the correct frontmatter:
+
+```markdown
+---
+title: "Your Post Title"
+date: "2025-12-26"
+description: "A short summary for the index page."
+---
+
+Your content here...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Portfolio Projects
+Projects are managed in `/app/portfolio/page.tsx`. Simply update the `projects` constant with your latest work.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🎨 Design Principles
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Radical Minimalism**: Strictly `#000000` and `#FFFFFF`.
+- **High Signal**: No unnecessary animations or heavy shadows.
+- **Swiss Aesthetics**: Sharp corners (`rounded-sm`), high-contrast typography, and generous negative space.
+- **Mobile First**: Fully responsive with a minimalist hamburger menu.
 
-## Learn More
+## 📄 License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Personal project. All rights reserved.
