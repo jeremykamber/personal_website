@@ -1,0 +1,71 @@
+---
+title: "The Memory Problem"
+date: "2025-12-28"
+description: "We are treating AI memory like a storage capacity problem, but it is actually an architectural one. Here is why we need to bridge the gap between RAG, Context Windows, and Summarization."
+---
+
+While the industry is currently obsessing over reasoning capabilities and inference speed (looking at you, o1), I’m with [Dharmesh Shah](https://x.com/dharmesh/status/1983201423048487018) on this one. The reasoning layer is getting better, but AI memory is what is **REALLY** being slept on.
+
+The way I see it, we aren't dealing with a capacity problem anymore; we are dealing with an architecture problem.
+
+Right now, most production-grade LLM applications are cobbling together three distinct memory "modules." They function, but they act like three different departments in a corporation that refuse to talk to each other.
+
+Here is the current stack:
+
+## 1. Short Term Memory (The Context Window)
+
+This is the sliding window of immediate tokens––the "working memory." It’s high fidelity but extremely expensive (computationally and financially) to maximize. You shove the last `n` messages into the prompt, and the model "remembers."
+
+## 2. Long Term Memory (RAG)
+
+Retrieval Augmented Generation. This is the industry standard for "knowledge." You vectorise documents or past chats, stick them in a database (like Pinecone or Weaviate), and perform a semantic search based on the user's query.
+
+It’s great for facts, but terrible for nuance. It retrieves isolated chunks of text without knowing *when* they happened or *why* they mattered.
+
+## 3. "Broad Term" Memory (Summarization)
+
+This is the elusive middle layer. I’ve seen this attempted in tools like Cursor or GitHub Copilot. The idea is to compress past context into a summary and keep that persistent in the system prompt.
+
+My hot take? I haven't really noticed much of a difference in daily use. The compression is often too lossy––it strips away the very details that make the context useful.
+
+---
+
+## The Silo Problem
+
+The issue isn't that these technologies are bad; it's that they are distinct.
+
+We treat RAG as a search engine and the Context Window as a buffer. But that isn't how memory works––at least, not effective memory.
+
+If I am building a journaling tool like Echo (think AI-powered reflection, not just auto-complete), I need the model to understand the *arc* of the user's life, not just keyword matches.
+
+If a user talks about "anxiety," a standard RAG system might pull up a journal entry from three years ago. But without **temporal context**, the AI doesn't know if that anxiety was resolved, if it worsened, or if it’s a recurring seasonal pattern.
+
+The chunks are retrieved, but the *story* is lost.
+
+## The "Orchestration" Hypothesis
+
+I think there is a lot of untapped ROI in using these modules to feed each other, rather than running them in parallel.
+
+Here is where the bridge starts to form:
+
+### 1. Broad Term steering Long Term
+
+We should use the high-level summary (Broad Term) to refine the RAG query. If the summary knows the user is currently in a "career transition phase," the RAG retrieval should weigh career-related documents higher than relationship documents––even if the keywords are ambiguous.
+
+### 2. Sequential Broad Term Memory
+
+This is the concept I’m most interested in. Instead of one big "summary blob," we need a linked list of chronological summaries. This captures the *sequence* of events without blowing up the token count.
+
+It allows the AI to see the "shape" of the timeline. It provides the breadcrumbs required to know *where* to look in the Long Term storage.
+
+## The End State
+
+If we get this orchestration right, we move beyond simple "Chat with your Data." We get a system that possesses:
+
+* The **Breadth** of a lifetime (via Sequential Summaries).
+* The **Focus** of a moment (via the Context Window).
+* The **Precision** of a surgeon (via targeted RAG).
+
+I’m going to continue experimenting with this architecture in Echo to see if we can engineer memory that feels less like a database query and more like intuition.
+
+It’s an implementation-adjacent challenge, but I suspect it’s the key to the next jump in perceived intelligence.
