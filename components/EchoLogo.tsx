@@ -21,7 +21,7 @@ export default function EchoLogo({ size = 1 }: EchoLogoProps) {
   return (
     <div className="flex items-center">
       <span
-        className={`${playfair.className} font-semibold tracking-tight text-custom-accent`
+        className={`${playfair.className} font-semibold tracking-tight text-custom-accent`}
         style={{ fontSize: `${textSize}rem` }}
       >
         echo
