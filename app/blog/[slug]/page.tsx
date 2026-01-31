@@ -2,6 +2,7 @@ import { getPostBySlug, getPosts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Metadata } from "next";
+import { PostTracker } from "@/components/analytics-tracker";
 
 type Props = {
   params: Promise<{
@@ -36,6 +37,7 @@ export default async function BlogPost(props: Props) {
 
   return (
     <article className="prose prose-zinc dark:prose-invert max-w-none break-words">
+      <PostTracker title={post.title} slug={params.slug} />
       <div className="mb-8 not-prose border-b border-border pb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">
           {post.title}

@@ -123,22 +123,23 @@
 
   /* Subtle grain texture and site accent positioning (respects reduced motion) */
   @media (prefers-reduced-motion: no-preference) {
-    .site-accent::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: url('/grain.png');
-      background-repeat: repeat;
-      opacity: 0.02;
-      pointer-events: none;
-      z-index: -1;
-    }
 
     /* Slow pulse animation used for the status badge dot */
     @keyframes pulse-slow {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.25); opacity: 0.6; }
-      100% { transform: scale(1); opacity: 1; }
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.25);
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .animate-pulse-slow {

@@ -20,17 +20,15 @@ export default function Home() {
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="mt-3 flex items-center gap-4">
-              <h1 className="text-3xl font-extrabold tracking-tight text-black dark:text-foreground sm:text-4xl">
-                Jeremy Kamber
-              </h1>
-
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-1">
+            <div className="mt-3 flex items-center gap-3">
+              <span className="inline-flex items-center rounded-full bg-muted text-foreground text-sm px-2 py-1 mb-6">
                 <span className="h-2 w-2 bg-foreground rounded-full mr-2 animate-pulse-slow" />
-                <span className="text-xs font-semibold text-black dark:text-muted-foreground">Currently building Echo — local LLM journaling & RAG.</span>
+                Echo local LLM support to roll out soon
               </span>
             </div>
-
+            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Jeremy Kamber
+            </h1>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-lg mt-2">
               Full-stack Developer and Product Manager based in Seattle.
               I build AI products, with a focus on making LLMs feel more human.

@@ -7,6 +7,7 @@ import {
     CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProjectInteractionTracker } from "@/components/analytics-tracker";
 
 const projects = [
     {
@@ -55,37 +56,39 @@ export default function Portfolio() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {projects.map((project) => (
-                    <Card key={project.title} className="rounded-sm border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow">
-                        <CardHeader>
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0">
-                                <CardTitle className="text-lg font-bold">
-                                    {project.title}
-                                </CardTitle>
-                                <span className="text-xs text-muted-foreground sm:ml-2">
-                                    {project.date}
-                                </span>
-                            </div>
-                            <p className="text-sm font-medium text-muted-foreground">
-                                {project.role}
-                            </p>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm leading-relaxed mb-4">
-                                {project.description}
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                                {project.stack.map((tech) => (
-                                    <Badge
-                                        key={tech}
-                                        variant="secondary"
-                                        className="rounded-none text-xs font-normal"
-                                    >
-                                        {tech}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <ProjectInteractionTracker key={project.title} title={project.title}>
+                        <Card className="rounded-sm border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                            <CardHeader>
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0">
+                                    <CardTitle className="text-lg font-bold">
+                                        {project.title}
+                                    </CardTitle>
+                                    <span className="text-xs text-muted-foreground sm:ml-2">
+                                        {project.date}
+                                    </span>
+                                </div>
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    {project.role}
+                                </p>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-sm leading-relaxed mb-4">
+                                    {project.description}
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {project.stack.map((tech) => (
+                                        <Badge
+                                            key={tech}
+                                            variant="secondary"
+                                            className="rounded-none text-xs font-normal"
+                                        >
+                                            {tech}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </ProjectInteractionTracker>
                 ))}
             </div>
         </div>
