@@ -62,7 +62,7 @@ export default async function BlogPost(props: Props) {
     <article className="prose prose-zinc dark:prose-invert max-w-none break-words">
       <PostTracker title={post.title} slug={params.slug} />
 
-      <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group px-3 py-1.5 -ml-3 rounded-sm hover:bg-muted/50">
+      <Link href="/blog" className="no-underline inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group px-3 py-1.5 -ml-3 rounded-sm hover:bg-muted/50">
         <span className="transition-transform group-hover:-translate-x-0.5">←</span>
         <span>Writing</span>
       </Link>
