@@ -53,18 +53,6 @@ export default async function CaseStudyPage(props: Props) {
       <ReadingProgress />
       <PostTracker title={study.title} slug={params.slug} />
 
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/portfolio">Projects</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="text-sm">{study.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <Link
         href="/portfolio"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group"

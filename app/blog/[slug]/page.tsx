@@ -3,14 +3,8 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Metadata } from "next";
 import { PostTracker } from "@/components/analytics-tracker";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 type Props = {
   params: Promise<{
@@ -67,18 +61,6 @@ export default async function BlogPost(props: Props) {
   return (
     <article className="prose prose-zinc dark:prose-invert max-w-none break-words">
       <PostTracker title={post.title} slug={params.slug} />
-      
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/blog">Writing</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="text-sm">{post.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
 
       <div className="mb-8 not-prose border-b border-border pb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">
