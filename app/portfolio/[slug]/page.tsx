@@ -48,17 +48,14 @@ export default async function CaseStudyPage(props: Props) {
     notFound();
   }
 
-  return (
+return (
     <article className="max-w-4xl mx-auto py-12 px-6">
       <ReadingProgress />
       <PostTracker title={study.title} slug={params.slug} />
 
-      <Link
-        href="/portfolio"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4 transform group-hover:-translate-x-1 transition-transform" />
-        Back to Portfolio
+      <Link href="/portfolio" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group">
+        <span className="transition-transform group-hover:-translate-x-0.5">←</span>
+        Projects
       </Link>
 
       <div className="space-y-4 mb-12">
