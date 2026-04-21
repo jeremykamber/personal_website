@@ -491,17 +491,7 @@ task({ category: "quick", prompt: "..." }); // "Just get it done"
 
 The category describes the **intent**, not the implementation. Each category maps to a model at runtime based on what's available and configured.
 
-| Category | What it's for |
-| :------- | :------------ |
-| `visual-engineering` | Frontend, UI, design, animations |
-| `ultrabrain` | Hard logic, architecture, complex decisions |
-| `deep` | Autonomous research + execution |
-| `quick` | Trivial changes, single-file fixes |
-| `unspecified-high` | Things that don't fit elsewhere (high effort) |
-| `unspecified-low` | Things that don't fit elsewhere (low effort) |
-| `writing` | Docs, prose, technical writing |
-
-Skills layer on top. A skill is a bundle of specialized instructions that gets prepended to the prompt. `frontend-ui-ux` for design work. `playwright` for browser automation. `git-master` for git operations. You can chain multiple skills onto one task.
+Skills layer on top. We talked about skills earlier: they're bundles of specialized instructions that gets prepended to the prompt. `frontend-ui-ux` for design work. `playwright` for browser automation. `git-master` for git operations. You can chain multiple skills onto one task.
 
 ```
 task(
