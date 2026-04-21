@@ -14,7 +14,7 @@ export default function Portfolio() {
     return (
         <div className="space-y-12">
             <div className="space-y-4">
-                <h1 className="text-4xl font-bold tracking-tight">Portfolio</h1>
+                <h1 className="text-4xl font-bold tracking-tight">Projects</h1>
                 <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
                     Selected projects and startups I've built or led. Focused on bridging the gap between design and scalable systems.
                 </p>
@@ -24,7 +24,7 @@ export default function Portfolio() {
                 {projects.map((project) => (
                     <ProjectInteractionTracker key={project.title} title={project.title}>
                         <Link href={`/portfolio/${project.slug}`} className="block group">
-                            <Card className="rounded-sm border-border bg-card text-card-foreground shadow-sm hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2 h-full flex flex-col overflow-hidden">
+                            <Card className="border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1 h-full flex flex-col overflow-hidden">
                                 <CardHeader className="relative">
                                     <div className="flex justify-between items-start">
                                         <div className="space-y-1">
@@ -50,7 +50,7 @@ export default function Portfolio() {
                                             <Badge
                                                 key={tech}
                                                 variant="secondary"
-                                                className="rounded-none text-[10px] font-normal uppercase tracking-wider bg-transparent border border-border group-hover:border-primary/50 transition-colors"
+                                                className="rounded-none text-[10px] font-normal uppercase tracking-wider bg-accent/50 border-border/50 group-hover:border-primary/50 transition-colors"
                                             >
                                                 {tech}
                                             </Badge>
@@ -58,9 +58,10 @@ export default function Portfolio() {
                                     </div>
                                 </CardContent>
                                 <div className="p-6 pt-0 mt-auto">
-                                    <div className="text-sm font-medium text-primary group-hover:underline">
-                                        View Case Study →
-                                    </div>
+                                    <span className="inline-flex items-center gap-1 text-sm font-medium text-foreground group-hover:underline">
+                                        View case study
+                                        <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                                    </span>
                                 </div>
                             </Card>
                         </Link>

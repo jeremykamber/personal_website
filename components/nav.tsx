@@ -15,9 +15,9 @@ import {
 import { useState, useEffect } from "react";
 
 const navItems = [
-  { name: "Home", href: "/" },
-  { name: "Portfolio", href: "/portfolio" },
-  { name: "Writing", href: "/blog" },
+  { name: "Home", href: "/", description: "About me" },
+  { name: "Projects", href: "/portfolio", description: "Case studies & work" },
+  { name: "Writing", href: "/blog", description: "Blog posts & essays" },
 ];
 
 export function Nav() {
@@ -30,8 +30,15 @@ export function Nav() {
   }, [pathname]);
 
   return (
-    <nav className="w-full flex items-center">
-      {/* Mobile Menu */}
+    <nav className="w-full flex items-center justify-between">
+      <Link 
+        href="/" 
+        className="font-semibold text-foreground hover:text-foreground/80 transition-colors cursor-pointer mr-8"
+        aria-label="Jeremy Kamber - Home"
+      >
+        JK
+      </Link>
+
       <div className="md:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
@@ -44,20 +51,21 @@ export function Nav() {
             <SheetHeader className="px-0">
               <SheetTitle className="text-left text-lg font-bold">Menu</SheetTitle>
             </SheetHeader>
-            <div className="flex flex-col space-y-4 mt-8">
+            <div className="flex flex-col space-y-5 mt-8">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-lg font-medium transition-colors hover:text-foreground/80",
+                    "group transition-colors hover:text-foreground/80",
                     pathname === item.href
                       ? "text-foreground"
                       : "text-muted-foreground"
                   )}
                   onClick={() => setIsOpen(false)}
                 >
-                  {item.name}
+                  <div className="text-base font-medium">{item.name}</div>
+                  <div className="text-xs text-muted-foreground/60">{item.description}</div>
                 </Link>
               ))}
             </div>
@@ -65,7 +73,6 @@ export function Nav() {
         </Sheet>
       </div>
 
-      {/* Desktop Menu */}
       <div className="hidden md:flex items-center space-x-6">
         {navItems.map((item) => (
           <Link

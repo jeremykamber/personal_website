@@ -7,6 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ReadingProgress } from "@/components/reading-progress";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 type Props = {
   params: Promise<{
@@ -44,6 +52,18 @@ export default async function CaseStudyPage(props: Props) {
     <article className="max-w-4xl mx-auto py-12 px-6">
       <ReadingProgress />
       <PostTracker title={study.title} slug={params.slug} />
+
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/portfolio">Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="text-sm">{study.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <Link
         href="/portfolio"
