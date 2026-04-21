@@ -408,9 +408,10 @@ There are infinite options for workflows, but the best advice is to choose one a
 
 But the most fascinating one we covered is called **"The Greek Gods"** (from [Oh My Openagent](https://github.com/oh-my-openagent/oh-my-openagent)). 
 
-This is "Ultrawork": Everything. All of it. Full horsepower. Epic. No human intervention. It operates on Agent Discovery Mode—it automatically hunts for context, infers your goal without a detailed prompt, and navigates the codebase autonomously. It skips the formal planning phase and implements directly. 
+This is "Ultrawork": Everything. All of it. Full horsepower. Epic. No human intervention. It operates on Agent Discovery Mode; it automatically hunts for context, infers your goal without a detailed prompt, and navigates the codebase autonomously. It skips the formal planning phase and implements directly.
 
 It does this through orchestration and parallelization of different subagents with specialties:
+
 * **The User** sets the Goal.
 * **Prometheus (The Architect)** creates the strategy.
 * **Metis** identifies gaps to refine the plan.
@@ -418,7 +419,152 @@ It does this through orchestration and parallelization of different subagents wi
 * **Atlas (The Conductor)** coordinates execution, delegating tasks.
 * **Junior (The Executor)** does the actual work.
 
-Atlas then verifies the results against accumulated wisdom stored in `.sisyphus/notes/` before marking it DONE. 
+Atlas then verifies the results against accumulated wisdom stored in `.sisyphus/notes/` before marking it DONE.
+
+### The Orchestration Alternative
+
+Ultrawork is the "lazy mode" approach. Sometimes you want more control. That's where orchestration comes in.
+
+The system uses three layers:
+
+```
+PLANNING          EXECUTION           WORKERS
+(User +           (Atlas             (Specialized
+Prometheus)       the Conductor)      Subagents)
+
+Goals             Reads plan          Junior (code)
+Requirements      Delegates tasks      Oracle (architecture)
+Boundaries        Verifies results   Explore (grep)
+                  Reports back        Librarian (docs)
+```
+
+**Prometheus** does the strategic thinking. He interviews you, figures out what you actually want, and writes a plan. He's read-only; he can only touch files in `.sisyphus/plans/`.
+
+**Metis** catches what Prometheus misses. She looks for gaps in the plan, hidden assumptions, and the kind of ambiguity that derails implementations.
+
+**Momus** is the gatekeeper. She checks the plan against four criteria: clarity, verification, context, and big picture. She won't let work start until the plan is solid.
+
+**Atlas** is the foreman. He reads the approved plan, breaks it into tasks, delegates to the right specialists, and verifies everything before marking it done.
+
+**Junior** is the worker. He writes code. He can't delegate to others (so no task sprawl), and he tracks his progress obsessively.
+
+---
+
+### When to Use What
+
+This is the decision tree:
+
+```
+Is it a quick fix or simple task?
+  └─ YES → Just prompt normally
+  └─ NO  → Is explaining context tedious?
+              └─ YES → ulw (let the agent figure it out)
+              └─ NO  → Do you need precise, verifiable execution?
+                         └─ YES → @plan (Prometheus plans, Atlas executes)
+                         └─ NO  → ulw
+```
+
+Ultrawork (`ulw`) is for when you can't be bothered to explain everything. The agent explores, plans on the fly, and implements. It's fire and forget.
+
+Orchestration (`@plan` → `/start-work`) is for when you need rigor. The plan gets reviewed, tasks get verified, and nothing ships until Momus says it's solid.
+
+---
+
+### The Category System
+
+Here's where it gets interesting. When Atlas delegates, he doesn't pick a model. He picks a **category**.
+
+Instead of this:
+
+```
+task({ agent: "gpt-5.4", prompt: "..." }); // Model knows its limitations
+task({ agent: "claude-opus-4-7", prompt: "..." }); // Different self-perception
+```
+
+You get this:
+
+```
+task({ category: "ultrabrain", prompt: "..." }); // "Think strategically"
+task({ category: "visual-engineering", prompt: "..." }); // "Design beautifully"
+task({ category: "quick", prompt: "..." }); // "Just get it done"
+```
+
+The category describes the **intent**, not the implementation. Each category maps to a model at runtime based on what's available and configured.
+
+| Category | What it's for |
+| :------- | :------------ |
+| `visual-engineering` | Frontend, UI, design, animations |
+| `ultrabrain` | Hard logic, architecture, complex decisions |
+| `deep` | Autonomous research + execution |
+| `quick` | Trivial changes, single-file fixes |
+| `unspecified-high` | Things that don't fit elsewhere (high effort) |
+| `unspecified-low` | Things that don't fit elsewhere (low effort) |
+| `writing` | Docs, prose, technical writing |
+
+Skills layer on top. A skill is a bundle of specialized instructions that gets prepended to the prompt. `frontend-ui-ux` for design work. `playwright` for browser automation. `git-master` for git operations. You can chain multiple skills onto one task.
+
+```
+task(
+  category = "visual-engineering",
+  load_skills = ["frontend-ui-ux", "playwright"],
+  prompt = "..."
+);
+```
+
+This gives you the full stack of expertise for that task without managing it manually.
+
+---
+
+### The Wisdom System
+
+The thing that makes orchestration actually work is the wisdom accumulation. After each task completes, Atlas extracts what was learned and passes it forward.
+
+```
+.sisyphus/notepads/{plan-name}/
+├── learnings.md      # Patterns, conventions, what worked
+├── decisions.md      # Architectural choices and why
+├── issues.md        # Problems encountered, how they were solved
+├── verification.md   # Test results, what passed
+└── problems.md      # Unresolved issues, technical debt
+```
+
+When Junior starts a task, he gets the accumulated wisdom from all previous tasks in that plan. This means the agent doesn't repeat mistakes. It doesn't try three approaches that already failed. It just picks up where it left off.
+
+This is the difference between an agent that works and an agent that actually helps. Without the wisdom layer, you get a fresh start every time. With it, you get a team that gets smarter as work progresses.
+
+---
+
+### How to Actually Use This
+
+The workflow in practice:
+
+```
+1. @plan "I want to refactor the auth system"
+   (Prometheus interviews you, writes a plan)
+
+2. Answer questions about scope, constraints, what must not break
+
+3. Momus reviews the plan; if she rejects it, Prometheus fixes it
+
+4. /start-work
+   (Atlas kicks off; Junior starts executing tasks)
+
+5. Each task completes, gets verified, wisdom accumulates
+
+6. Done
+   (All tasks complete, verified, documented)
+```
+
+Or for the lazy path:
+
+```
+1. ulw add user authentication
+
+   (Agent explores codebase, figures out where it goes,
+    implements, verifies, done)
+```
+
+Both work. The first gives you control and verification. The second gives you speed and convenience. Pick based on what the task actually needs. 
 
 ### The Bottom Line: 5 High-Value Tips to Apply Now
 
@@ -429,17 +575,8 @@ To wrap up, if you take nothing else away, implement these 5 tips right now:
 4. Tell AI to research the codebase and write a plan before implementing in phases.
 5. Tell the LLM to follow SOLID principles (good code quality) and KISS (Keep it Simple, Stupid).
 
-For numbers 2, 4, and 5, setting this up as a foundational `AGENTS.md` file will change the way you build.
+For numbers 2, 4, and 5, just [use my AGENTS.md file](https://www.notion.so/My-own-AGENTS-md-3395b818c71580048f70ef0e73458eec?source=copy_link), and you're set.
 
-Let me know your thoughts––thanks for reading!
-
-– Jeremy
-your thoughts––thanks for reading!
-
-– Jeremy
-ading!
-
-– Jeremy
-your thoughts––thanks for reading!
+Let me know your thoughts; thanks for reading!
 
 – Jeremy
