@@ -7,6 +7,7 @@ export const projects = [
     stack: ["Python", "FastAPI", "Docker", "Ubuntu"],
     date: "Apr 2025 – Present",
     id: "bringforth",
+    slug: "bringforth-studio",
   },
   {
     title: "Echo",
@@ -16,6 +17,17 @@ export const projects = [
     stack: ["React", "LangChain", "Ollama", "PostgreSQL"],
     date: "Jan 2025 – Present",
     id: "echo",
+    slug: "echo",
+  },
+  {
+    title: "DeepBound",
+    role: "Creator & Lead Developer",
+    description:
+      "AI-powered user testing platform that automates feedback with high-fidelity personas. Uses deep binding of LLM virtual personas for consistent, realistic behavior.",
+    stack: ["Next.js", "TypeScript", "Tailwind", "Zustand", "Hexagonal Architecture"],
+    date: "2025 – Present",
+    id: "deepbound",
+    slug: "deepbound",
   },
   {
     title: "TradeTalent",
@@ -25,6 +37,7 @@ export const projects = [
     stack: ["SQL", "Database Design", "ERD"],
     date: "Jan 2025 – Apr 2025",
     id: "tradetalent",
+    slug: "tradetalent",
   },
   {
     title: "Friend-ly",
@@ -34,5 +47,6 @@ export const projects = [
     stack: ["React Native", "MVVM", "Git"],
     date: "Oct 2024 – June 2025",
     id: "friendly",
+    slug: "friendly",
   },
 ];

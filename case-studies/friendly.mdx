@@ -1,0 +1,36 @@
+---
+title: "Friend-ly: Socializing the Student Experience"
+date: "2024-10-01"
+description: "Architecting a cross-platform mobile app for campus connection."
+role: "Mobile Engineer"
+stack: ["React Native", "MVVM", "Git"]
+id: "friendly"
+---
+
+![Friend-ly Mobile UI](/projects/friendly-ui.png)
+
+University can be a lonely place, despite being surrounded by thousands of people. 
+
+**Friend-ly** was built to bridge the gap between "being on campus" and "being part of the community." It's a mobile-first social network designed specifically for the unique needs of students.
+
+## The Goal: High Fidelity, High Performance
+
+Building a social network means handling real-time data, complex media feeds, and instant messaging. As the Mobile Engineer on this project, my focus was on creating an experience that felt "native" and responsive, regardless of the device.
+
+## The Architecture: MVVM for Scalability
+
+We chose **React Native** for the cross-platform reach, but we didn't want the "spaghetti code" that often comes with Rapid Application Development.
+
+I architected the app using the **MVVM (Model-View-ViewModel)** pattern. By strictly separating the business logic (ViewModels) from the UI (Views), we achieved:
+
+* **Testability**: We could test our logic without spinning up a full UI environment.
+* **Consistency**: The same data-fetching logic could be used across different parts of the app.
+* **Separation of Concerns**: UI designers could work on the `View` components without fear of breaking the underlying API integration.
+
+## Design Aesthetics: Vibrant & Accessible
+
+The design language of Friend-ly is energetic. We used bold colors and large, readable typography to match the student vibe. The goal was to make "finding a study group" feel as engaging as scrolling through a curated feed.
+
+## Reflections
+
+Friend-ly taught me the importance of **predictable state management**. In a real-time social app, if your state is out of sync, the user loses trust immediately. This project was a deep dive into building systems that are as sturdy as they are beautiful. 

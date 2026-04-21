@@ -94,7 +94,7 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="mt-3">
-                  <Link href={`/portfolio#${p.id}`} className="text-sm text-primary hover:underline">View</Link>
+                  <Link href={`/portfolio/${p.slug}`} className="text-sm text-primary hover:underline">View Case Study →</Link>
                 </div>
               </CardContent>
             </Card>

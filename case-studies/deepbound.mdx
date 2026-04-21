@@ -1,0 +1,65 @@
+---
+title: "DeepBound: AI-Powered User Testing"
+date: "2025-02-10"
+description: "Building a platform that automates user testing with high-fidelity AI personas, generating deep behavioral insights from automated testing runs."
+role: "Creator & Lead Developer"
+stack: ["Next.js", "TypeScript", "Tailwind", "Zustand", "Hexagonal Architecture"]
+id: "deepbound"
+---
+
+The problem with user testing is it doesn't scale. You can run five sessions, maybe ten if you're lucky. But what if you need feedback on fifty variations? Or hundred? The math doesn't work.
+
+Traditional user testing is expensive, slow, and produces a narrow slice of feedback. You watch recordings, you read notes, you try to spot patterns. It's manual work even when you're trying to be systematic about it.
+
+DeepBound started as a question: what if you could generate realistic user personas that actually behave like humans? Not cartoon bots that click randomly, but personas with context, memory, and consistent decision-making patterns. Personas that could run through your product and give you the kind of feedback you'd get from real users.
+
+## The Core Concept: Deep Binding
+
+The name comes from "deep binding of LLM virtual personas." It's a technique for creating AI personas that maintain coherent identity across interactions. Instead of a generic chatbot, you have a specific character with history, preferences, and predictable-but-varied behavior.
+
+Think about how a real user approaches a new product. They have context from their experience with similar tools. They make assumptions based on patterns they've seen. They get confused by things that seem obvious in hindsight. A good testing persona needs all of that.
+
+The "deep binding" refers to how we connect the LLM to a consistent persona definition. We use structured prompts that define the persona's background, their technical comfort level, what they're trying to accomplish, and constraints on how they explore. The model then generates behavior that's consistent with those parameters, while still allowing for the variation you'd see across different real users.
+
+## The Technical Architecture
+
+The stack is Next.js 14 with App Router, TypeScript throughout, Tailwind for styling, and Zustand for global state. The architecture follows Hexagonal principles to keep the domain logic separate from infrastructure.
+
+```
+Domain Layer (src/domain)
+  Entities: Persona, TestRun, Insight
+  Ports: PersonaRepository, AnalyticsBackend
+  Rules: Pure business logic, no external dependencies
+
+Application Layer (src/application)
+  UseCases: RunPersonaTest, GenerateInsights, CompareResults
+  Orchestrates domain entities and ports
+
+Infrastructure Layer (src/infrastructure)
+  Adapters: LLM PersonaProvider, AnalyticsAdapter
+  Implements the ports using external services
+
+Actions Layer (src/actions)
+  Server Actions as entry points for UI
+  Thin wrappers, no business logic
+```
+
+The key insight for making persona testing work is treating each test run as a structured process. You define a scenario, you set the persona loose, you capture the interaction, you extract insights. The LLM does the hard part of behaving like a human would; the infrastructure handles the reliability and consistency.
+
+## The Testing Loop
+
+A typical test run works like this. First, you define a scenario: "a project manager trying to estimate sprint velocity." You pick or create a persona that fits: someone familiar with agile processes but new to this specific tool. Then you watch the persona interact with your UI.
+
+What makes this useful is the structured output. Instead of just "user clicked around for five minutes," you get a log of decisions, questions, and confusion points, all tagged and categorized. You can aggregate across multiple personas to see which problems are universal versus edge cases.
+
+The analytics layer processes these logs into actionable insights. Where do users consistently get stuck? What patterns indicate they're about to abandon a flow? Which features generate engagement versus friction?
+
+## Why This Matters
+
+The feedback loop in product development is everything. Faster feedback means faster iteration. But most teams are limited by the manual nature of user testing. You can only run so many sessions per week.
+
+AI personas don't replace real user testing. They replace the preliminary work, the discovery phase where you're trying to find the obvious problems before you bring in real users. Run fifty AI personas through your checkout flow, fix the issues that surface, then bring in real users for the nuanced validation work.
+
+DeepBound is built around this insight. It's a tool for the iteration cycle, not the final verdict.
+
+The code is on GitHub at [github.com/jeremykamber/deepbound](https://github.com/jeremykamber/deepbound). The architecture docs go deeper if you're curious about the Hexagonal approach.

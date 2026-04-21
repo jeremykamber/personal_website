@@ -1,0 +1,36 @@
+---
+title: "TradeTalent: Designing for Data Integrity"
+date: "2025-01-01"
+description: "Architecting a robust relational database for a skill-trading marketplace."
+role: "Database Engineer"
+stack: ["SQL", "Database Design", "ERD"]
+id: "tradetalent"
+---
+
+![TradeTalent ERD Schema](/projects/tradetalent-schema.png)
+
+When building a marketplace, the database isn't just a place to store data. It's the source of truth for every interaction, every promise, and every trade. 
+
+For **TradeTalent**, a platform where students trade skills (e.g., "I'll teach you React if you teach me Graphic Design"), the complexity lies in the circular nature of the transactions.
+
+## The Challenge: Relational Complexity
+
+Unlike a standard e-commerce site where you buy a product with currency, TradeTalent handles direct value exchange. This results in a few unique architectural hurdles:
+
+1. **The Skill Graph**: A user can have many skills, and a skill can be offered by many users.
+2. **The Trade State Machine**: Trades aren't just "bought." They are proposed, negotiated, accepted, and then (hopefully) completed. Managing these states while ensuring data integrity is paramount.
+
+## The Architecture: Constraints as Code
+
+I approached this by leaning heavily into the relational model. Instead of handling business logic entirely in the application layer, I embedded it into the database schema itself.
+
+### Key Implementations:
+* **Complex SQL Constraints**: Ensuring a user can't trade a skill with themselves.
+* **Stored Procedures**: Automating the updates of user reputations after a successful trade.
+* **Optimized Views**: Creating a "Discovery View" that joins users and skills with high performance, even as the dataset grows.
+
+## Why it Matters
+
+In my opinion, good software starts with a good mental model of the data. By spending the time to get the ERD right, we made the frontend development significantly easier. The API didn't have to "guess" or perform messy joins in memory; it just asked the database for exactly what it needed.
+
+This project reinforced my belief that **Database Design is Product Design.** If you don't understand how your data relates, you don't understand how your users interact. 

@@ -51,5 +51,5 @@ Do not break character. Do not reveal you are an AI model.
     messages: [systemMessage, ...messages],
   });
 
-  return result.toDataStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

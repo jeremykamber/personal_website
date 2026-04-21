@@ -1,18 +1,21 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useChat } from "ai/react";
-import { Message } from "ai";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, User, Bot, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, Bot, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export function ChatInterface() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: "/api/chat",
+  const [input, setInput] = useState("");
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+    }),
   });
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -22,6 +25,14 @@ export function ChatInterface() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim() && status === "ready") {
+      sendMessage({ text: input });
+      setInput("");
+    }
+  };
 
   return (
     <>
@@ -90,10 +101,7 @@ export function ChatInterface() {
                     {["Who are you?", "Recent projects?", "Hexagonal Architecture?"].map((q) => (
                       <button
                         key={q}
-                        onClick={() => {
-                          const e = { target: { value: q } } as any;
-                          handleInputChange(e);
-                        }}
+                        onClick={() => setInput(q)}
                         className="text-[10px] px-2 py-1 rounded-full border border-border hover:bg-muted transition-colors"
                       >
                         {q}
@@ -103,29 +111,36 @@ export function ChatInterface() {
                 </div>
               )}
 
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={cn(
-                    "flex w-full mb-4",
-                    m.role === "user" ? "justify-end" : "justify-start"
-                  )}
-                >
+              {messages.map((m) => {
+                const textContent = m.parts
+                  .filter((part): part is { type: "text"; text: string } => part.type === "text")
+                  .map((part) => part.text)
+                  .join("");
+
+                return (
                   <div
+                    key={m.id}
                     className={cn(
-                      "max-w-[85%] rounded-2xl p-3 text-sm",
-                      m.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-tr-none"
-                        : "bg-muted text-foreground rounded-tl-none border border-border/50"
+                      "flex w-full mb-4",
+                      m.role === "user" ? "justify-end" : "justify-start"
                     )}
                   >
-                    <div className="prose prose-sm dark:prose-invert break-words">
-                      {parseContent(m.content)}
+                    <div
+                      className={cn(
+                        "max-w-[85%] rounded-2xl p-3 text-sm",
+                        m.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-tr-none"
+                          : "bg-muted text-foreground rounded-tl-none border border-border/50"
+                      )}
+                    >
+                      <div className="prose prose-sm dark:prose-invert break-words">
+                        {parseContent(textContent)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              {isLoading && (
+                );
+              })}
+              {status === "streaming" || status === "submitted" && (
                 <div className="flex justify-start">
                   <div className="bg-muted rounded-2xl p-3 rounded-tl-none animate-pulse">
                     <div className="flex gap-1">
@@ -146,14 +161,14 @@ export function ChatInterface() {
               <Input
                 placeholder="Ask something..."
                 value={input}
-                onChange={handleInputChange}
+                onChange={(e) => setInput(e.target.value)}
                 className="flex-1 rounded-full bg-muted/30 focus-visible:ring-primary/20"
-                disabled={isLoading}
+                disabled={status !== "ready"}
               />
               <Button
                 type="submit"
                 size="icon"
-                disabled={!input || isLoading}
+                disabled={!input || status !== "ready"}
                 className="rounded-full h-10 w-10 shrink-0"
               >
                 <Send className="h-4 w-4" />
@@ -168,6 +183,7 @@ export function ChatInterface() {
 
 // Helper to parse citations like ^Ref^[Label](URL)
 function parseContent(content: string) {
+  if (!content) return null;
   const parts = content.split(/(\^Ref\^\[.*?\]\(.*?\))/g);
   return parts.map((part, i) => {
     const match = part.match(/\^Ref\^\[(.*?)\]\((.*?)\)/);

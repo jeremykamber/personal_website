@@ -1,0 +1,48 @@
+---
+title: "Echo: Private, Local-First AI Journaling"
+date: "2025-01-15"
+description: "How I built a journaling app that uses local LLMs to ensure user data never leaves their device."
+role: "Founder & Lead Developer"
+stack: ["React", "LangChain", "Ollama", "PostgreSQL"]
+id: "echo"
+---
+
+![Echo Mockup](/projects/echo-screenshot.png)
+
+Journaling is, by its very nature, the most private data we produce. When I started building **Echo**, I had a simple realization: asking someone to pour their deepest thoughts into a text box that then gets shipped off to a third-party API for "analysis" is a massive ask. 
+
+It feels... wrong.
+
+So I set out to build a journaling experience where the "brain" of the application lives exactly where the data does: **on the user's machine.**
+
+## The Problem: The Privacy Paradox
+
+Most AI apps today trade privacy for capability. You want a smart summary? You have to give up your data.
+
+In the context of a journal, this paradox is even more acute. If a user doesn't feel safe, they won't be honest. If they aren't honest, the journal loses its value. To solve this, I needed to sever the cord between the application and the centralized AI providers.
+
+## The Solution: Local Inference & RAG
+
+The core of Echo is built on two pillars: **Local LLM Inference** and **Retrieval Augmented Generation (RAG)**.
+
+I used **Ollama** as the local inference engine. It allows Echo to talk to models like Llama 3 or Mistral running directly on the user's hardware. No network roundtrips. No data leaks.
+
+### How it works:
+1. **Entry**: The user writes a reflection.
+2. **Embedding**: The text is converted into a vector (locally) and stored in a database.
+3. **Retrieval**: When the user asks a question (e.g., "How has my mood shifted this week?"), the app finds relevant past entries.
+4. **Augmentation**: Those entries are fed into the local LLM to generate a private, context-aware reflection.
+
+## The Design Language
+
+I wanted Echo to feel **quiet**. 
+
+Unlike most productivity apps that are cluttered with buttons and notifications, Echo's design is "Swiss-inspired"—minimalist, high-contrast, and focused entirely on the text. I used a dark aesthetic with subtle glows to make the interface feel modern yet unobtrusive.
+
+## Outcome & Future
+
+Since launch, Echo has reached **100+ users** who value their privacy above all else. 
+
+The next step is moving toward **full WebGPU support** via WebLLM, removing the need for users to even install Ollama. The goal is a zero-install, zero-leak, high-intelligence journaling experience.
+
+Stay tuned.

@@ -2,7 +2,6 @@
 
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createStreamableValue } from "ai/rsc";
 import { getContext } from "./rag";
 
 export async function chatAction(messages: any[]) {
@@ -14,7 +13,7 @@ export async function chatAction(messages: any[]) {
     : "";
 
   const systemPrompt = `
-You are Jeremy Kamber, a software engineer and product manager. 
+You are Jeremy Kamber, a software engineer and product manager.
 You are responding to a visitor on your personal website.
 
 STYLE GUIDELINES:
@@ -28,7 +27,7 @@ STYLE GUIDELINES:
 CITATIONS:
 - When you mention something based on your work or posts, use a special citation format like [ref:Source Name].
 - At the end of your response, or inline if appropriate, provide clickable markdown links to these sources if they are provided in context.
-- Use the character combo " ^Ref^ " to indicate a citation that can be clicked. 
+- Use the character combo " ^Ref^ " to indicate a citation that can be clicked.
 - Example: "I built Echo as an AI journaling app ^Ref^[Echo](/portfolio)."
 
 CONTEXT:
@@ -43,5 +42,5 @@ ${contextPill}
     ],
   });
 
-  return createStreamableValue(result.textStream).value;
+  return result.text;
 }

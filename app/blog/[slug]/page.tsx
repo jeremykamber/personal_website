@@ -14,9 +14,30 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const post = getPostBySlug(params.slug);
   if (!post) return {};
+
+  const ogImage = `/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(post.description)}&type=Blog%20Post`;
+
   return {
     title: `${post.title} - Jeremy Kamber`,
     description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -42,14 +63,20 @@ export default async function BlogPost(props: Props) {
         <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">
           {post.title}
         </h1>
-        <time className="text-sm text-muted-foreground">
-          {new Date(post.date).toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-            timeZone: "UTC",
-          })}
-        </time>
+        <div className="flex items-center gap-3 text-sm text-muted-foreground uppercase tracking-widest font-medium">
+          <time>
+            {new Date(post.date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })}
+          </time>
+          <span>•</span>
+          <span>{post.readingTime} min read</span>
+          <span>•</span>
+          <span>{post.wordCount} words</span>
+        </div>
       </div>
       <MDXRemote source={post.content} />
     </article>

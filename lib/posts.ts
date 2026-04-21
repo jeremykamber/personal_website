@@ -10,7 +10,16 @@ export type Post = {
     date: string;
     description: string;
     content: string;
+    readingTime: number;
+    wordCount: number;
 };
+
+function calculateReadingTime(content: string): { readingTime: number; wordCount: number } {
+    const wordsPerMinute = 225;
+    const wordCount = content.split(/\s+/).length;
+    const readingTime = Math.ceil(wordCount / wordsPerMinute);
+    return { readingTime, wordCount };
+}
 
 export function getPosts(): Post[] {
     if (!fs.existsSync(postsDirectory)) {
@@ -25,6 +34,7 @@ export function getPosts(): Post[] {
             const fullPath = path.join(postsDirectory, fileName);
             const fileContents = fs.readFileSync(fullPath, "utf8");
             const matterResult = matter(fileContents);
+            const { readingTime, wordCount } = calculateReadingTime(matterResult.content);
 
             let dateStr = "";
             if (matterResult.data.date instanceof Date) {
@@ -39,6 +49,8 @@ export function getPosts(): Post[] {
                 date: dateStr,
                 description: matterResult.data.description,
                 content: matterResult.content,
+                readingTime,
+                wordCount,
             };
         });
 
@@ -50,6 +62,7 @@ export function getPostBySlug(slug: string): Post | undefined {
         const fullPath = path.join(postsDirectory, `${slug}.mdx`);
         const fileContents = fs.readFileSync(fullPath, "utf8");
         const matterResult = matter(fileContents);
+        const { readingTime, wordCount } = calculateReadingTime(matterResult.content);
 
         let dateStr = "";
         if (matterResult.data.date instanceof Date) {
@@ -64,6 +77,8 @@ export function getPostBySlug(slug: string): Post | undefined {
             date: dateStr,
             description: matterResult.data.description,
             content: matterResult.content,
+            readingTime,
+            wordCount,
         };
     } catch (e) {
         return undefined;
