@@ -53,9 +53,9 @@ return (
       <ReadingProgress />
       <PostTracker title={study.title} slug={params.slug} />
 
-      <Link href="/portfolio" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group">
+      <Link href="/portfolio" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group px-3 py-1.5 -ml-3 rounded-sm hover:bg-muted/50">
         <span className="transition-transform group-hover:-translate-x-0.5">←</span>
-        Projects
+        <span>Projects</span>
       </Link>
 
       <div className="space-y-4 mb-12">
