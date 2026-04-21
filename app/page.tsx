@@ -9,7 +9,6 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-import EchoLogo from "@/components/EchoLogo";
 
 export default function Home() {
   const posts = getPosts().slice(0, 3); // Get 3 most recent
@@ -33,7 +32,11 @@ export default function Home() {
               Full-stack Developer and Product Manager based in Seattle.
               I build AI products, with a focus on making LLMs feel more human.
             </p>
-            <EchoLogo size={0.75} />
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <a href="https://github.com/jeremykamber/echo-journal-mvp" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Echo</a>
+                <span className="text-muted-foreground/50">|</span>
+                <a href="https://github.com/jeremykamber/deepbound" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">DeepBound</a>
+              </div>
           </div>
 
           <div className="flex gap-3">
