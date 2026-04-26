@@ -59,16 +59,16 @@ export default async function BlogPost(props: Props) {
   }
 
   return (
-    <article className="prose prose-zinc dark:prose-invert max-w-none break-words">
+    <article className="max-w-4xl mx-auto py-12 px-6">
       <PostTracker title={post.title} slug={params.slug} />
 
-      <Link href="/blog" className="no-underline inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group px-3 py-1.5 -ml-3 rounded-sm hover:bg-muted/50">
+      <Link href="/blog" className="no-underline inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group px-3 py-1.5 -ml-3 rounded-sm hover:bg-muted/50">
         <span className="transition-transform group-hover:-translate-x-0.5">←</span>
         <span>Writing</span>
       </Link>
 
-      <div className="mb-8 not-prose border-b border-border pb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">
+      <div className="mb-12 not-prose border-b border-border pb-8">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3 text-foreground">
           {post.title}
         </h1>
         <div className="flex items-center gap-3 text-sm text-muted-foreground uppercase tracking-widest font-medium">
@@ -86,7 +86,25 @@ export default async function BlogPost(props: Props) {
           <span>{post.wordCount} words</span>
         </div>
       </div>
-      <MDXRemote source={post.content} />
+
+      <div className="prose prose-zinc dark:prose-invert max-w-none break-words
+        prose-headings:font-bold prose-headings:tracking-tight
+        prose-img:rounded-sm prose-img:border prose-img:border-border prose-img:shadow-xl
+        prose-strong:text-foreground
+        prose-p:leading-relaxed prose-p:text-muted-foreground prose-p:text-lg">
+        <MDXRemote source={post.content} />
+      </div>
+
+      <footer className="mt-20 pt-8 border-t border-border">
+        <div className="flex justify-between items-center">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Jeremy Kamber
+          </p>
+          <Link href="/blog" className="text-sm font-medium hover:underline">
+            View more writing
+          </Link>
+        </div>
+      </footer>
     </article>
   );
 }

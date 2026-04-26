@@ -12,7 +12,7 @@ I've been extremely interested in agentic coding (also sometimes called "agentic
 
 ---
 
-### Choosing Your Harness
+# Choosing Your Harness
 
 If you’re building something that is the infrastructure for other things, your tool choice dictates your leverage. 
 
@@ -33,32 +33,32 @@ If you want to get started right away and give it a whirl, Opencode is my recomm
 
 ---
 
-## The Anatomy of an Agent
+# The Anatomy of an Agent
 
 To understand how to get ROI from these systems, you have to understand what an agent actually is. In the workshop, I mapped out the core architecture: 
 The Agent sits at the center. It is powered vertically by the LLM (the brain) and its State. Horizontally, it reaches out to Tools and MCP. Diagonally, it relies on its Lifecycle, Loops, Memory, and Subagents. 
 
 ```
-                                   LLM
-                                    ^
-                                    |
-                                    |
-                      LIFECYCLE     |       LOOPS
-                              ^     |     ^
-                               \    |    /
-                                \   |   /
-                    TOOLS <---- [ AGENT ] ----> MCP
-                                /   |   \
-                               /    |    \
-                              v     |     v
-                        MEMORY      |       SUBAGENTS
-                                    v
-                                  STATE
+               LLM
+                ^
+                |
+                |
+  LIFECYCLE     |       LOOPS
+          ^     |     ^
+           \    |    /
+            \   |   /
+TOOLS <---- [ AGENT ] ----> MCP
+            /   |   \
+           /    |    \
+          v     |     v
+    MEMORY      |       SUBAGENTS
+                v
+              STATE
 ```
 
 If you leave out the systems-thinking required to manage these components, you're going to get systems that don't really work at scale. 
 
-### Prompt Engineering 101: R-TECCS
+## Prompt Engineering 101: R-TECCS
 
 So far, we've seen companies try to optimize for this through very clever prompt engineering. To standardize this, I teach the **R-TECCS** framework:
 * **R**ole/Persona
@@ -72,7 +72,7 @@ Each letter in R-TECCS addresses a specific failure mode in how people talk to A
 
 ---
 
-#### R is for Role/Persona
+### R is for Role/Persona
 
 The first thing an AI needs to know is who it should be in this conversation. Give it a title and you get generic output. Give it an identity and you get focused reasoning.
 
@@ -90,7 +90,7 @@ The role is the foundation. Everything else sits on top of it.
 
 ---
 
-#### T is for Task
+### T is for Task
 
 The task is the verb. It's what you're asking the AI to actually do.
 
@@ -106,7 +106,7 @@ A well-defined task is a gift to the AI. It removes ambiguity, sets clear bounda
 
 ---
 
-#### E is for Expected Outcome
+### E is for Expected Outcome
 
 If the role is the identity and the task is the verb, the expected outcome is the definition of done.
 
@@ -124,7 +124,7 @@ The expected outcome is your quality gate. Write it accordingly.
 
 ---
 
-#### C is for Constraints (first C)
+### C is for Constraints (first C)
 
 Constraints are the "you cannot do X" guardrails. They're negative definitions of the solution space.
 
@@ -133,22 +133,22 @@ This component is underrated. People think they're being helpful by not limiting
 Constraints tell the AI what to leave alone. What patterns should it not break? What existing APIs must it maintain compatibility with? What architectural decisions are off-limits?
 
 ```
-    CONSTRAINTS IN PRACTICE
-    ───────────────────────
+CONSTRAINTS IN PRACTICE
+───────────────────────
 
-    Bad:    "Implement the new feature"
-    Good:   "Implement the new feature
-             without modifying auth/ or api/v1/
-             and maintain backwards compatibility
-             with existing client SDKs"
+Bad:    "Implement the new feature"
+Good:   "Implement the new feature
+         without modifying auth/ or api/v1/
+         and maintain backwards compatibility
+         with existing client SDKs"
 
-    ─────────────────────────────────
+─────────────────────────────────
 
-    Constraints answer:
-    • What should NOT change?
-    • What must remain untouched?
-    • What patterns must be preserved?
-    • What are the non-negotiables?
+Constraints answer:
+• What should NOT change?
+• What must remain untouched?
+• What patterns must be preserved?
+• What are the non-negotiables?
 ```
 
 The best constraints are specific. "Don't touch the legacy code" is vague. "The refactor must not modify anything in lib/legacy/ or break the external API contract documented in api-spec.yaml" is specific.
@@ -157,7 +157,7 @@ Constraints are not about limiting creativity. They're about protecting the thin
 
 ---
 
-#### C is for Context (second C)
+### C is for Context (second C)
 
 Context is the information the AI needs to do the task correctly. It's the difference between starting from scratch and starting from a foundation.
 
@@ -173,13 +173,13 @@ A good test: if the AI had to guess this information, would its guess be wrong? 
 
 ---
 
-#### S is for Scope
+### S is for Scope
 
 Scope defines the boundaries of the work. What's in, what's out, and how do you know when you're done?
 
 This is where you prevent feature creep, both from yourself and from the AI. "While you're in there, could you also..." is the enemy of focused execution. Scope is the answer to "what does this task actually include?"
 
-The best scope statements are specific. Concrete deliverables, defined endpoints, explicit exclusions. Not "refactor the backend" but "extract the user authentication logic from the Express routes into a dedicated auth middleware module in middleware/auth.ts, keeping the existing route interfaces intact." Scope is not about being small. It's about being intentional. You can scope a large task just as easily as a small one. The point is that you define what "done" means by defining what the work includes.
+The best scope statements are specific. Concrete deliverables, defined endpoints, explicit exclusions. Not "refactor the backend" but "extract the user authentication logic from the Express routes into a dedicated auth middleware module in middleware/auth.ts, keeping the existing route interfaces intact." Scope is about being intentional, not being small. You can scope a large task just as easily as a small one. The point is that you define what "done" means by defining what the work includes.
 
 Without scope, tasks expand. The AI sees an opportunity to improve something, or notices a related problem, and the problem it came to solve becomes a different solution solving a different problem. Scope prevents this.
 
@@ -190,30 +190,30 @@ Without scope, tasks expand. The AI sees an opportunity to improve something, or
 Here's how these pieces fit together in a real prompt:
 
 ```
-    ROLE:      You are a senior platform engineer with deep
-               Kubernetes experience and strong opinions
-               on infrastructure as code.
+ROLE:      You are a senior platform engineer with deep
+           Kubernetes experience and strong opinions
+           on infrastructure as code.
 
-    TASK:      Create a Helm chart for the checkout service
-               that follows our existing chart patterns.
+TASK:      Create a Helm chart for the checkout service
+           that follows our existing chart patterns.
 
-    OUTCOME:   A deployable Helm chart in deploy/checkout/
-               with values.yaml, templates/, and Chart.yaml.
-               Must be compatible with our ArgoCD workflow
-               and pass 'helm lint' without warnings.
+OUTCOME:   A deployable Helm chart in deploy/checkout/
+           with values.yaml, templates/, and Chart.yaml.
+           Must be compatible with our ArgoCD workflow
+           and pass 'helm lint' without warnings.
 
-    CONSTRAINTS: Do not modify existing infrastructure code.
-                 Do not create new Terraform resources.
-                 Must use our standard labels and annotations.
+CONSTRAINTS: Do not modify existing infrastructure code.
+             Do not create new Terraform resources.
+             Must use our standard labels and annotations.
 
-    CONTEXT:   The checkout service is a Node.js app with
-               3 replicas, environment-based config, and
-               needs external Redis and PostgreSQL connections.
-               Our existing charts use _helpers.tpl extensively.
+CONTEXT:   The checkout service is a Node.js app with
+           3 replicas, environment-based config, and
+           needs external Redis and PostgreSQL connections.
+           Our existing charts use _helpers.tpl extensively.
 
-    SCOPE:     Only the checkout service Helm chart.
-               No related services, no CI/CD changes.
-               Exclude local development documentation.
+SCOPE:     Only the checkout service Helm chart.
+           No related services, no CI/CD changes.
+           Exclude local development documentation.
 ```
 
 Notice how each piece does its job. The role sets mental model. The task is specific and atomic. The outcome defines done. The constraints protect the surrounding system. The context enables informed decisions. The scope prevents expansion.
@@ -228,7 +228,7 @@ A massive cheat code here is to use AI to generate and improve your prompts. Dra
 
 ... and [a prompt I use](https://www.notion.so/MAIN-AI-Prompt-Generation-Meta-Prompt-3495b818c715802fae9cf30e195660f1?source=copy_link) to get AI to generate me _exceptional_ prompts (with follow-up questions included to ensure it gets the right info it needs).
 
-### Agentic Basics: Compaction, Skills, Tools, and Commands
+# Agentic Basics: Compaction, Skills, Tools, and Commands
 
 There are four fundamental building blocks to agentic development:
 
@@ -241,15 +241,15 @@ The premise here is simple: you want the AI to reference the CliffNotes instead 
 Think of skills as cookbooks. They contain the instructions (your `SKILL.md` files) and the ingredients (the scripts, sub-instructions, etc.). You can even pull from a skill library or marketplace (like `skills.sh`). For example, a deployment skill might have a `SKILL.md` that says "use scripts/vercel_deploy to..." and then references a `deploy_to_vercel.sh` script.
 
 ```
-    [ Agent ] <--> [ Skill Library ]
-                    |
-        +-----------+-----------+
-        |           |           |
-    [ Deploy ]  [ Test ]  [ Refactor ]
+[ Agent ] <--> [ Skill Library ]
+                |
+    +-----------+-----------+
+    |           |           |
+[ Deploy ]  [ Test ]  [ Refactor ]
 
-    deploy_skill/
-      SKILL.md
-      scripts/deploy_to_vercel.sh
+deploy_skill/
+  SKILL.md
+  scripts/deploy_to_vercel.sh
 ```
 
 **3. Tools**
@@ -262,11 +262,11 @@ A slash command is just an easy way to inject instructions. That's it. Commands 
 
 ---
 
-### The Three Pillars of Agentic Development
+# The Three Pillars of Agentic Development
 
 With the basics out of the way, we can now get to the core pillars that undergird effective agentic development. There are three of them: Context Management, Human in the Loop, and Evaluation.
 
-#### Pillar #1: Context Management
+## Pillar #1: Context Management
 
 Your context window is short-term memory; the AI forgets what it can't hold. That's not a flaw, it's physics. When you cram too much in, the model starts hallucinating to fill the gaps; it's not being difficult, it's trying to be helpful with incomplete information.
 
@@ -275,17 +275,17 @@ Think of the context window like a fuel gauge. You have a tank, you can fill it,
 When the context is nearly full, the model starts losing earlier information to make room for newer content. That's when you get hallucinations, contradictions, and the feeling that the AI forgot what you told it five minutes ago. It's not being difficult; it's physics.
 
 ```
-            CONTEXT CAPACITY
-            ─────────────────
+        CONTEXT CAPACITY
+        ─────────────────
 
-    EMPTY          SWEET SPOT          FULL           OVERFLOW
-      |                  |                |                 |
-      v                  v                v                 v
-     0%               40-50%            80%              100%+
+EMPTY          SWEET SPOT          FULL           OVERFLOW
+  |                  |                |                 |
+  v                  v                v                 v
+ 0%               40-50%            80%              100%+
 
-                 |<-- good -->|          |<-- trouble -->|
+             |<-- good -->|          |<-- trouble -->|
 
-    target: ~36% for a 264k context window
+target: ~36% for a 264k context window
 ```
 
 The sweet spot is 40 to 50 percent. Below that and you're paying for capacity you're not using; above that and you're gambling with quality.
@@ -297,17 +297,17 @@ I manage this through the "3 C's": **Compaction**, **Composition**, and moving *
 Instead of one agent doing everything, you build a hierarchy. A parent agent delegates to subagents, each handling a distinct task and reporting back with findings. The subagent might chew through 100k tokens reading files; your parent agent only sees the final summary. It's like a project manager who doesn't need to sit in on every meeting, just the stand-ups.
 
 ```
-              ORCHESTRATOR
-            sees ~2k tokens
-                  |
-        +---------+---------+
-        |                     |
-    [CODER]             [SEARCHER]
-    100k tokens            80k tokens
-        |                     |
-        v                     v
-    summary               summary
-    (~1k)                 (~1k)
+          ORCHESTRATOR
+        sees ~2k tokens
+              |
+    +---------+---------+
+    |                     |
+[CODER]             [SEARCHER]
+100k tokens            80k tokens
+    |                     |
+    v                     v
+summary               summary
+(~1k)                 (~1k)
 ```
 
 The key insight: the AI that runs your tests doesn't need to know about your git history. Different tasks, different context. You wouldn't load your entire codebase into a prompt about fixing a CSS bug.
@@ -328,35 +328,35 @@ Report back is the filter. It's the compression step. The subagent spent 100k to
 Think of it like a final exam. The student spends a semester learning, doing homework, reading textbooks. At the end, they sit down and write a 2-page summary that captures what they know. The 2 pages is the report. The semester of work is the "do stuff." The parent agent only ever sees the 2 pages.
 
 ```
-    subagent work:
-    100k tokens of reading, trying, failing, succeeding
+subagent work:
+100k tokens of reading, trying, failing, succeeding
 
-    subagent output:
-    "found the bug in auth/middleware.ts, line 47,
-     it's a missing null check, fixed it, tests pass"
+subagent output:
+"found the bug in auth/middleware.ts, line 47,
+ it's a missing null check, fixed it, tests pass"
 
-    parent context cost: ~50 tokens
+parent context cost: ~50 tokens
 ```
 
 That's the trade. The parent stays lean because the subagent does the compression.
 
-#### Pillar #2: Human in the Loop
+## Pillar #2: Human in the Loop
 
 Here's where most vibe coding goes wrong: the human abdicates strategy. They say "build me something" and let the AI figure out everything, and then they wonder why the result is a mess of scope creep and unconnected pieces.
 
 You are the Architect; the AI is the laborer. Architecture is hard. Implementation is easy. If you don't believe me, try describing a bridge to a builder versus actually building one. The description takes domain knowledge, tradeoff analysis, constraint reasoning. The building takes following instructions. Your job is the thinking; the AI's job is the typing.
 
 ```
-        HUMAN (YOU)              AI
-            |                     |
-        STRATEGY             EXECUTION
-            |                     |
-        "where?"              "how?"
-            |                     |
-        YOU DO THIS           AI DOES THIS
+    HUMAN (YOU)              AI
+        |                     |
+    STRATEGY             EXECUTION
+        |                     |
+    "where?"              "how?"
+        |                     |
+    YOU DO THIS           AI DOES THIS
 ```
 
-This isn't about being precious or refusing to let the AI help. It's about understanding where your leverage is highest. When you hand over strategy, you're handing over the destination. When you hold strategy, you're holding the map.
+When you hand over strategy, you're handing over the destination. When you hold strategy, you're holding the map.
 
 **Define Boundaries Early.** Code is a liability. Every line is something that can break, something that needs maintaining, something that needs explaining to the next person who reads it. The tighter your scope, the less liability you create. When you prompt an agent, you're not just describing what to build; you're drawing a fence around what it can touch.
 
@@ -364,62 +364,85 @@ A tight scope looks like this: "Fix the login button styling on the settings pag
 
 You can guess which one doesn't result in seventeen unexpected file changes.
 
-**The Ping Pong Technique.** Take two different AI models and have them debate your plan. Model A proposes; Model B critiques. The output goes back to Model A for refinement. You do this three times. It's not about getting consensus; it's about stress-testing your thinking before you commit code.
+**The Ping Pong Technique.** Take two different AI models and have them debate your plan. Model A proposes; Model B critiques. The output goes back to Model A for refinement. You do this three times. The goal is stress-testing your thinking before you commit code, not getting consensus.
 
 The prompt I use: "You are a senior developer reviewing a technical plan from a junior teammate. Aggressively identify flaws, gaps, and risks. Do not soften your feedback." Give that to your critic model and let it work.
 
 ```
-        MODEL A          MODEL B
-        propose    -->    critique
-            ^              |
-            |              v
-        refine          refine
-            ^              |
-            |              v
-        (repeat 3x)
+    MODEL A          MODEL B
+    propose    -->    critique
+        ^              |
+        |              v
+    refine          refine
+        ^              |
+        |              v
+    (repeat 3x)
 ```
 
-The result isn't perfect; nothing is. The result is robust. You've caught the obvious problems before they became runtime errors. But here's the thing about evaluation: it only matters if you actually run the tests. If you write tests and never execute them, you haven't built a mold; you've drawn a picture of one.
+The result isn't perfect; nothing is. The result is robust. You've caught the obvious problems before they became runtime errors. But evaluation only matters if you actually run the tests. If you write tests and never execute them, you haven't built a mold; you've drawn a picture of one.
 
-#### Pillar #3: Evaluation
+### The RPI Workflow: Research, Plan, Implement
+
+The most effective human-in-the-loop system I've found is called RPI, and it comes from [Dex Horthy's writeup on advanced context engineering](https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/ace-fca.md). The core idea is that you split development into three distinct phases, each with a specific output and a human checkpoint before moving forward.
+
+The premise is simple: a bad line of code is just a bad line of code. A bad line of a plan could lead to hundreds of bad lines of code. A bad line of research, a misunderstanding of how the codebase works or where certain functionality lives, could land you with thousands of bad lines of code. So you focus human effort and attention on the highest leverage parts of the pipeline.
+
+The three phases work like this:
+
+**Research.** You send an agent into the codebase to understand how things work. Not just the file you're looking at, but the connections. How does data flow through the system? Where are the entry points? What are the existing patterns? The output is a research doc that captures what you learned.
+
+**Plan.** You take the research and turn it into an implementation plan. Not "fix the bug" but "here's exactly what files we'll touch, in what order, and here's how we'll verify each step works." The plan is a contract between you and the agent about what success looks like.
+
+**Implement.** You execute the plan, phase by phase. After each phase, you verify before moving to the next. This is where TDD kicks in; you write the test first, watch it fail, then write the code to make it pass.
+
+This workflow designs your entire process around context management. You keep the context window in the 40 to 60 percent range (depending on problem complexity), and you build in high-leverage human review at exactly the right points. The human isn't reviewing every line of code; they're reviewing the research and the plan, which is where the real leverage is.
+
+When you review a plan instead of code, you're reviewing the decision about what to build, not the building itself. If the plan is wrong, you catch it before a single line gets written. If the plan is right but the implementation is wrong, you catch it in the verification step before it gets merged.
+
+---
+
+## Pillar #3: Evaluation
 
 You would never pour concrete without the mold in place. You'd end up with a mess, and you'd have to break it all out and start over. Writing code without tests is the same thing; you're hoping the concrete lands correctly, and when it doesn't, you're doing twice the work.
 
 TDD is not a suggestion. It is the mold for your concrete.
 
 ```
-    1. WRITE TEST     2. RUN (FAIL)     3. WRITE CODE     4. RUN (PASS)
-       +-----+            +-----+           +-----+           +-----+
-       |MOLD |     -->    |CHECK |    -->   |POUR |    -->    |SET  |
-       +-----+            +-----+           +-----+           +-----+
+1. WRITE TEST     2. RUN (FAIL)     3. WRITE CODE     4. RUN (PASS)
+   +-----+            +-----+           +-----+           +-----+
+   |MOLD |     -->    |CHECK |    -->   |POUR |    -->    |SET  |
+   +-----+            +-----+           +-----+           +-----+
 ```
 
 The sequence is simple. Write the test that defines what success looks like. Run it. Watch it fail because the code doesn't exist yet. Write the code. Run the test again. Watch it pass because your code now matches the mold you built. That's it. That's the whole process.
 
 Now add the tools. Your agent should have access to LSP errors; Opencode provides this by default. The agent can read compilation errors, trace through the codebase from the frontend to the backend, and understand the connections. For browser interactions, give it Playwright. The agent can spin up a browser, navigate to your app, click things, check for console errors. It's like having a QA engineer that never gets tired and never forgets to test the happy path.
 
-Playwright isn't just for testing; it's for verification. After the agent writes code, it can run the browser test and confirm the feature actually works in a real environment, not just in a simulated one. That's the difference between code that passes linting and code that works.
+Playwright isn't just for testing; it's for verification. After the agent writes code, it can run the browser test and confirm the feature actually works in a real environment, not just in a simulated one. Code that passes linting isn't necessarily code that works.
+
+### Review Agents: The Quality Gate You Actually Use
+
+Tests only catch what you told them to catch. If you write a test for the happy path and nothing else, you'll never know about the edge case that crashes production. This is where review agents come in.
+
+A review agent is a separate agent that looks at the code after it's written and before it gets merged. It checks for things the implementer might have missed: security vulnerabilities, performance problems, deviation from existing patterns, incomplete error handling. A second pair of eyes that never gets tired and never skips the boring checks.
+
+The review agent operates on a different context than the implementer. It doesn't know what the code was supposed to do; it just knows what it does. This creates a gap between intent and implementation that the implementer can't see because they're too close to the code.
+
+Combining TDD with review agents gives you a quality gate that actually works. The implementer writes tests for what they expect. The review agent checks for what they didn't expect. If the review agent finds something, it flags it. The implementer fixes it. The cycle repeats. Nothing gets merged until the review agent passes.
+
+The review agent catches the mechanical problems. The human catches the design problems. Together, they catch almost everything.
 
 ---
 
 ### Bringing it Together: Pre-Built Workflows
 
-There are infinite options for workflows, but the best advice is to choose one and stick with it for a month. Some popular ones are Research, Plan, Implement (RPI), micode (Opencode-native RPI), and Super RPI. 
+There are infinite options for workflows, but the best advice is to choose one and stick with it for a month. Some popular ones are Research, Plan, Implement (RPI), micode (Opencode-native RPI), and Super RPI.
 
-But the most fascinating one we covered is called **"The Greek Gods"** (from [Oh My Openagent](https://github.com/oh-my-openagent/oh-my-openagent)). 
+But the most fascinating one I've found is called **"The Greek Gods"** (from [Oh My Openagent](https://github.com/oh-my-openagent/oh-my-openagent)). This is "Ultrawork": Everything. All of it. Full horsepower. Epic. No human intervention. It operates on Agent Discovery Mode; it automatically hunts for context, infers your goal without a detailed prompt, and navigates the codebase autonomously. It skips the formal planning phase and implements directly.
 
-This is "Ultrawork": Everything. All of it. Full horsepower. Epic. No human intervention. It operates on Agent Discovery Mode; it automatically hunts for context, infers your goal without a detailed prompt, and navigates the codebase autonomously. It skips the formal planning phase and implements directly.
+It does this through orchestration and parallelization of different subagents with specialties: The User sets the Goal; Prometheus creates the strategy; Metis identifies gaps to refine the plan; Momus finalizes the PLAN.md; Atlas coordinates execution, delegating tasks; Junior does the actual work. Atlas then verifies the results against accumulated wisdom stored in `.sisyphus/notes/` before marking it DONE.
 
-It does this through orchestration and parallelization of different subagents with specialties:
-
-* **The User** sets the Goal.
-* **Prometheus (The Architect)** creates the strategy.
-* **Metis** identifies gaps to refine the plan.
-* **Momus (The Reviewer)** finalizes the `PLAN.md`.
-* **Atlas (The Conductor)** coordinates execution, delegating tasks.
-* **Junior (The Executor)** does the actual work.
-
-Atlas then verifies the results against accumulated wisdom stored in `.sisyphus/notes/` before marking it DONE.
+---
 
 ### The Orchestration Alternative
 
@@ -472,7 +495,7 @@ Orchestration (`@plan` → `/start-work`) is for when you need rigor. The plan g
 
 ### The Category System
 
-Here's where it gets interesting. When Atlas delegates, he doesn't pick a model. He picks a **category**.
+When Atlas delegates, he doesn't pick a model. He picks a **category**.
 
 Instead of this:
 
@@ -507,7 +530,7 @@ This gives you the full stack of expertise for that task without managing it man
 
 ### The Wisdom System
 
-The thing that makes orchestration actually work is the wisdom accumulation. After each task completes, Atlas extracts what was learned and passes it forward.
+Orchestration only works because of wisdom accumulation. After each task completes, Atlas extracts what was learned and passes it forward.
 
 ```
 .sisyphus/notepads/{plan-name}/
