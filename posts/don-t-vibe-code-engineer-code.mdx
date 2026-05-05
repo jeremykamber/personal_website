@@ -20,7 +20,7 @@ Poor tools yield poor leverage.
 
 So, you need to choose the right "harness" for your agents. 
 
-The landscape currently looks like this:
+The options currently look like this:
 
 * **Opencode:** This is my personal favorite (and it has a nice free tier).
 * **Github Copilot:** Built by GitHub/Microsoft, but honestly, it's pretty "ehh" when it comes to true agentic leverage.
@@ -179,7 +179,7 @@ Scope defines the boundaries of the work. What's in, what's out, and how do you 
 
 This is where you prevent feature creep, both from yourself and from the AI. "While you're in there, could you also..." is the enemy of focused execution. Scope is the answer to "what does this task actually include?"
 
-The best scope statements are specific. Concrete deliverables, defined endpoints, explicit exclusions. Not "refactor the backend" but "extract the user authentication logic from the Express routes into a dedicated auth middleware module in middleware/auth.ts, keeping the existing route interfaces intact." Scope is about being intentional, not being small. You can scope a large task just as easily as a small one. The point is that you define what "done" means by defining what the work includes.
+The best scope statements are specific: concrete deliverables, defined endpoints, explicit exclusions. Compare "refactor the backend" with "extract the user authentication logic from the Express routes into a dedicated auth middleware module in middleware/auth.ts, keeping the existing route interfaces intact." The difference is specificity. Being intentional with scope matters more than keeping it small. You can scope a large task just as easily as a small one. The point is that you define what "done" means by defining what the work includes.
 
 Without scope, tasks expand. The AI sees an opportunity to improve something, or notices a related problem, and the problem it came to solve becomes a different solution solving a different problem. Scope prevents this.
 
@@ -323,7 +323,7 @@ The "do stuff" part is where they go read files, write code, run commands, use u
 
 Why does this matter for context? Because the alternative is having one agent hold all the intermediate state from every tool call, every file read, every failed attempt. That's noise. The parent doesn't need to know you tried three different approaches before finding the one that worked; it just needs to know the result.
 
-Report back is the filter. It's the compression step. The subagent spent 100k tokens to figure something out, and the parent sees 1k tokens that capture the answer. That's not a bug; that's the feature. You're using the subagent's thinking to compress value, not to store transcript.
+Report back is the filter and the compression step. The subagent spent 100k tokens to figure something out, and the parent sees 1k tokens that capture the answer. This compression is the intended behavior. You're using the subagent's thinking to compress value; storing a full transcript misses the point.
 
 Think of it like a final exam. The student spends a semester learning, doing homework, reading textbooks. At the end, they sit down and write a 2-page summary that captures what they know. The 2 pages is the report. The semester of work is the "do stuff." The parent agent only ever sees the 2 pages.
 
@@ -364,7 +364,7 @@ A tight scope looks like this: "Fix the login button styling on the settings pag
 
 You can guess which one doesn't result in seventeen unexpected file changes.
 
-**The Ping Pong Technique.** Take two different AI models and have them debate your plan. Model A proposes; Model B critiques. The output goes back to Model A for refinement. You do this three times. The goal is stress-testing your thinking before you commit code, not getting consensus.
+**The Ping Pong Technique.** Take two different AI models and have them debate your plan. Model A proposes; Model B critiques. The output goes back to Model A for refinement. You do this three times. The goal is stress-testing your thinking before you commit code (you're not trying to reach consensus).
 
 The prompt I use: "You are a senior developer reviewing a technical plan from a junior teammate. Aggressively identify flaws, gaps, and risks. Do not soften your feedback." Give that to your critic model and let it work.
 
@@ -389,7 +389,7 @@ The premise is simple: a bad line of code is just a bad line of code. A bad line
 
 The three phases work like this:
 
-**Research.** You send an agent into the codebase to understand how things work. Not just the file you're looking at, but the connections. How does data flow through the system? Where are the entry points? What are the existing patterns? The output is a research doc that captures what you learned.
+**Research.** You send an agent into the codebase to understand how things work. You want the full picture: the file you're looking at and the connections around it. How does data flow through the system? Where are the entry points? What are the existing patterns? The output is a research doc that captures what you learned.
 
 **Plan.** You take the research and turn it into an implementation plan. Not "fix the bug" but "here's exactly what files we'll touch, in what order, and here's how we'll verify each step works." The plan is a contract between you and the agent about what success looks like.
 
@@ -397,7 +397,7 @@ The three phases work like this:
 
 This workflow designs your entire process around context management. You keep the context window in the 40 to 60 percent range (depending on problem complexity), and you build in high-leverage human review at exactly the right points. The human isn't reviewing every line of code; they're reviewing the research and the plan, which is where the real leverage is.
 
-When you review a plan instead of code, you're reviewing the decision about what to build, not the building itself. If the plan is wrong, you catch it before a single line gets written. If the plan is right but the implementation is wrong, you catch it in the verification step before it gets merged.
+When you review a plan, you're checking the decision about what to build before construction starts. Reviewing code catches construction errors after the fact. If the plan is wrong, you catch it before a single line gets written. If the plan is right but the implementation is wrong, you catch it in the verification step before it gets merged.
 
 ---
 
@@ -418,7 +418,7 @@ The sequence is simple. Write the test that defines what success looks like. Run
 
 Now add the tools. Your agent should have access to LSP errors; Opencode provides this by default. The agent can read compilation errors, trace through the codebase from the frontend to the backend, and understand the connections. For browser interactions, give it Playwright. The agent can spin up a browser, navigate to your app, click things, check for console errors. It's like having a QA engineer that never gets tired and never forgets to test the happy path.
 
-Playwright isn't just for testing; it's for verification. After the agent writes code, it can run the browser test and confirm the feature actually works in a real environment, not just in a simulated one. Code that passes linting isn't necessarily code that works.
+Playwright handles testing and verification. After the agent writes code, it can run the browser test and confirm the feature actually works in a real environment. Code that passes linting isn't necessarily code that works.
 
 ### Review Agents: The Quality Gate You Actually Use
 
@@ -438,7 +438,7 @@ The review agent catches the mechanical problems. The human catches the design p
 
 There are infinite options for workflows, but the best advice is to choose one and stick with it for a month. Some popular ones are Research, Plan, Implement (RPI), micode (Opencode-native RPI), and Super RPI.
 
-But the most fascinating one I've found is called **"The Greek Gods"** (from [Oh My Openagent](https://github.com/oh-my-openagent/oh-my-openagent)). This is "Ultrawork": Everything. All of it. Full horsepower. Epic. No human intervention. It operates on Agent Discovery Mode; it automatically hunts for context, infers your goal without a detailed prompt, and navigates the codebase autonomously. It skips the formal planning phase and implements directly.
+But the most fascinating one I've found is called **"The Greek Gods"** (from [Oh My Openagent](https://github.com/oh-my-openagent/oh-my-openagent)). This is "Ultrawork": Everything. All of it. Full horsepower. Epic. No human intervention. It operates on Agent Discovery Mode; it automatically hunts for context, infers your goal without a detailed prompt, and works through the codebase autonomously. It skips the formal planning phase and implements directly.
 
 It does this through orchestration and parallelization of different subagents with specialties: The User sets the Goal; Prometheus creates the strategy; Metis identifies gaps to refine the plan; Momus finalizes the PLAN.md; Atlas coordinates execution, delegating tasks; Junior does the actual work. Atlas then verifies the results against accumulated wisdom stored in `.sisyphus/notes/` before marking it DONE.
 

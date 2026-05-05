@@ -8,7 +8,7 @@ tags: ["Local LLMs", "AI", "WebLLM", "Privacy", "Engineering", "Ollama"]
 
 The capabilities of open-source models (like **Llama 3**, **Mistral**, and **Gemma**) are converging with proprietary models at an astonishing rate. A year ago, the gap between GPT-4 and a model you could run on your laptop was... apparent. Now? For chatting, it's near-zero. For basic- to intermediate-level tasks, the difference is often quite small.
 
-Combined with the explosion of efficient hardware—specifically **Apple's M-series chips** with their unified memory architecture—and optimized inference engines like `llama.cpp` and `Ollama`, we are entering an era where **local inference** is not just viable, but preferable for many use cases.
+Combined with efficient hardware (specifically **Apple's M-series chips** with their unified memory architecture) and optimized inference engines like `llama.cpp` and `Ollama`, we are entering an era where **local inference** is viable and often preferable for many use cases.
 
 I've been testing this extensively, and the shift feels similar to the move from server-side rendering to client-side SPAs a decade ago. It changes where the "magic" happens.
 
@@ -16,13 +16,13 @@ I've been testing this extensively, and the shift feels similar to the move from
 
 Two things have made this possible: hardware- and software-level optimizations.
 
-On the software side, **quantization** has been a game changer. We can now compress models down to 4-bit (or even lower) precision with negligible loss in reasoning capability. This means a model that used to require 24GB of VRAM can now run comfortably on a standard MacBook Air with 16GB of RAM. BitNet has even tried quantizing models to just a single bit, and has done so successfully with surprising fidelity.
+On the software side, **quantization** has been transformative. We can now compress models down to 4-bit (or even lower) precision with negligible loss in reasoning capability. This means a model that used to require 24GB of VRAM can now run comfortably on a standard MacBook Air with 16GB of RAM. BitNet has even tried quantizing models to just a single bit, and has done so successfully with surprising fidelity.
 
 Tools like **Ollama** have abstracted away the pain of managing these weights. You don't need to be an ML engineer messing with Python environments anymore; you just run `ollama run llama3.2:3b` in your terminal, and you have an API and model ready to go.
 
 ## Why Local?
 
-The benefits aren't just theoretical. When you move the "brain" of the application onto the user's device, you unlock three massive advantages:
+When you move the "brain" of the application onto the user's device, you get three advantages:
 
 ### 1. Privacy by Default
 In my opinion, this is the killer feature. With local inference, **data never leaves your machine.**
@@ -32,7 +32,7 @@ For apps dealing with sensitive data (think health records, financial documents,
 ### 2. Latency and "Snappiness"
 When you remove the network roundtrip, the experience feels different. It feels **solid.**
 
-There is no DNS resolution, no handshake, no queueing on a remote server farm, and no hanging when the coffee shop Wi-Fi blips. The tokens just start streaming. For interactive UI elements—like auto-complete or real-time grammar checking—that split-second difference is what makes a feature feel "native".
+There is no DNS resolution, no handshake, no queueing on a remote server farm, and no hanging when the coffee shop Wi-Fi blips. The tokens just start streaming. For interactive UI elements (like auto-complete or real-time grammar checking), that split-second difference is what makes a feature feel "native".
 
 ### 3. Cost
 This is simple math: **Zero API fees.**
@@ -63,6 +63,6 @@ The experience is instant, offline-capable, and completely private.
 
 I'd venture to say we are heading toward a hybrid future. We will still use massive, cloud-hosted models (like GPT-5 or Claude Opus) for heavy lifting and complex reasoning tasks.
 
-But for the day-to-day interactions—summarization, drafting, UI navigation, and personal reflection—**Small Language Models (SLMs)** running locally will dominate.
+But for the day-to-day interactions (summarization, drafting, UI navigation, and personal reflection), **Small Language Models (SLMs)** running locally will dominate.
 
 The future of software development involves designing for this case.

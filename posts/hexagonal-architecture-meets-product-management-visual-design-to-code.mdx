@@ -1,12 +1,12 @@
 ---
 title: "PM Artifacts Are Secretly Software Architecture"
 date: "2025-12-26"
-description: "Parallels between PM artifacts (service blueprints, use case diagrams, backlogs) and hexagonal software architecture—and how AI can bridge them."
+description: "Parallels between PM artifacts (service blueprints, use case diagrams, backlogs) and hexagonal software architecture; and how AI can bridge them."
 ---
 
 Right now, I'm taking INFO 380 (UW Informatics's class on product management), and I have to say:
 
-I've noticed a **LOT** of parallels between representing implementation-adjacent product thinking on the PM side—think service blueprints, use case diagrams, backlogs—and actually building or architecting software as an engineer.
+I've noticed a **LOT** of parallels between representing implementation-adjacent product thinking on the PM side (think service blueprints, use case diagrams, backlogs) and actually building or architecting software as an engineer.
 
 It’s something that has been stuck in my head for weeks. We usually treat Product and Engineering as two distinct worlds with a "wall" in between. The PM throws a PRD (Product Requirements Document) over the wall, and the Engineer catches it and starts coding. But the more I look at the visual tools we use in product management, the more they look like blueprints for the code itself.
 
@@ -22,7 +22,7 @@ Use cases in hexagonal architecture break down features into specific actions a 
 
 If I draw a Use Case diagram where an "Admin" actor connects to a "Update Inventory" bubble, that isn't just a requirement. In Hexagonal Architecture, that is literally a class or a function in the core domain layer.
 
-Anything a use case connects to—like a database to store that inventory, or an LLM to generate a description—becomes an **adapter**. There’s a near one-to-one relationship between the use cases in these diagrams and those I might write in code.
+Anything a use case connects to (like a database to store that inventory, or an LLM to generate a description) becomes an **adapter**. There’s a near one-to-one relationship between the use cases in these diagrams and those I might write in code.
 
 For example, if I'm mapping out a "User Login" flow in a diagram:
 * The **Actor** is the user taking the action
@@ -33,7 +33,7 @@ The diagram is a request for functionality, yes, but it's also pretty much spell
 
 ## Service Blueprints as Architectural Layers
 
-It gets even clearer when you look at **Service Blueprints**. For those who haven't used them, a service blueprint maps the relationship between different service components—people, props (physical or digital evidence), and processes—that are directly tied to touchpoints in a specific customer journey.
+It gets even clearer when you look at **Service Blueprints**. For those who haven't used them, a service blueprint maps the relationship between different service components (people, props (physical or digital evidence), and processes) that are directly tied to touchpoints in a specific customer journey.
 
 I’ve realized these map very closely to software architecture layers:
 
