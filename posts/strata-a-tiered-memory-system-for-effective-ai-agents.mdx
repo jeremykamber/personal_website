@@ -36,9 +36,9 @@ That results in the intelligence of an LLM without recurring polling costs.
 
 ---
 
-## Phase 1: The Active Shell (High-Resolution Markdown)
+## The First Stratum: The Active Shell (High-Resolution Markdown)
 
-Phase 1 is the agent's working memory. This is the "shell" (the essential, immediate context). It is structured entirely in Markdown files organized in a standard directory tree.
+The first stratum is the agent's working memory. This is the "shell" (the essential, immediate context). It is structured entirely in Markdown files organized in a standard directory tree.
 
 When my personal agent (Niklaus) is actively working on a feature for Kynd, it doesn't need to do a fuzzy semantic search to find the active code requirements. It needs an exact, structured file.
 
@@ -76,15 +76,15 @@ Once the trigger fires, the system makes an LLM call. The LLM is handed the raw 
 
 > "You are the Strata Migration Engine. Take this raw project file and compress it into a high-density Memory Block. Extract the core outcomes, the final technical decisions, and all relevant entities. Discard conversational filler. Format the output as a JSON object containing a 200-word summary and an array of metadata tags."
 
-The LLM processes the text. It turns a 3,000-word planning document for the iStartup Lab into a concise summary; it tags it with `[iStartup, launch_sprint, Zaretzky]`.
+The LLM processes the text. It turns a 3,000-word planning document for the iStartup Lab into a concise summary; it tags it with `[iStartup, launch_sprint]`.
 
 This solves the "semantic loss" problem. If we just blindly moved the raw text to a vector DB, the search would be chaotic. By having the LLM synthesize it first, we create clean, dense chunks that are highly optimized for retrieval.
 
 ---
 
-## Phase 2: The Medium-Term Orbit (agent-db)
+## The Second Stratum: The Medium-Term Orbit (agent-db)
 
-Phase 2 is the semantic and relational memory. Once an active project cools down, those condensed "Memory Blocks" move into **agent-db** (a Postgres-backed system built specifically for autonomous agent memory). Instead of a generic vector database, we get a full relational engine with vector search built in.
+Stratum 2 is the semantic and relational memory. Once an active project cools down, those condensed "Memory Blocks" move into **agent-db** (a Postgres-backed system built specifically for autonomous agent memory). Instead of a generic vector database, we get a full relational engine with vector search built in.
 
 This matters because a memory isn't just text; it's a relationship between a person, a place, and a project. agent-db understands that.
 
@@ -106,7 +106,7 @@ Every time a memory is retrieved, the system increments `access_count` and updat
 
 ---
 
-## The Transition: Phase 2 to Phase 3
+## The Transition: Second to Third Stratum
 
 Postgres with pgvector is fast, but it still consumes RAM and storage. Keeping memories from five years with zero retrievals in active Postgres is wasteful.
 
@@ -122,9 +122,9 @@ We do not just delete the memory. The Janitor takes the raw JSON object from the
 
 ---
 
-## Phase 3: The Cold Archive + Shadow Index
+## The Final (Third) Stratum: The Cold Archive + Shadow Index
 
-This is the most critical part of Strata. How do you find a memory if it's no longer in the active database? You use a Shadow Index.
+This is the most critical of the strata, and what sets this system apart from others (e.g mem0 or QMD). How do you find a memory if it's no longer in the active database? You use a Shadow Index.
 
 ### The Shadow Index Structure
 
