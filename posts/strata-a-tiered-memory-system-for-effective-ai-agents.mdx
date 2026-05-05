@@ -163,6 +163,6 @@ The agent never needs to manage the transitions. The agent only reads and writes
 
 Here's the thing about both approaches on their own. Strata is great at lifecycle management; it knows when data should move and when it should die. But its summaries are too simple to capture the rich web of connections between people, projects, and places. agent-db solves that with relational linking, but without Strata's eviction logic, it would keep everything warm forever and burn through storage costs.
 
-So the synthesis is this: Strata provides the lifecycle discipline (the Janitor, the LRU eviction, the Shadow Index), and agent-db provides the storage engine for Phase 2 and Phase 3. Strata is the Janitor that agent-db is missing; agent-db is the Knowledge Graph that Strata's summaries are too simple to capture on their own.
+So the synthesis is this: Strata provides the lifecycle discipline (the Janitor, the LRU eviction, the Shadow Index), and agent-db powers Phase 2 as the relational memory engine (the Shadow Index handles cold eviction from there to Phase 3). Strata is the Janitor that agent-db is missing; agent-db is the Knowledge Graph that Strata's summaries are too simple to capture on their own.
 
 Right now we're seeing an industry obsessed with throwing more compute at the memory problem; Strata proves that structured decay and asynchronous consolidation is the actual path forward for autonomous systems.
