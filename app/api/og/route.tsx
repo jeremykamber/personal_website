@@ -20,7 +20,7 @@ export async function GET(request: Request) {
             flexDirection: 'column',
             alignItems: 'flex-start',
             justifyContent: 'center',
-            backgroundColor: '#fff',
+            backgroundColor: '#0a0e14',
             padding: '80px',
             fontFamily: 'sans-serif',
           }}
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
               marginBottom: '20px',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
-              color: '#666',
+              color: '#7a7f8c',
             }}
           >
             {type}
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
               fontWeight: 800,
               lineHeight: 1.1,
               letterSpacing: '-0.04em',
-              color: '#000',
+              color: '#c8cdd6',
               marginBottom: '20px',
               wordBreak: 'break-word',
             }}
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
             style={{
               fontSize: '32px',
               fontWeight: 400,
-              color: '#666',
+              color: '#7a7f8c',
               maxWidth: '800px',
               lineHeight: 1.4,
             }}
@@ -79,8 +79,8 @@ export async function GET(request: Request) {
               left: '80px',
               fontSize: '24px',
               fontWeight: 700,
-              color: '#000',
-              borderTop: '2px solid #000',
+              color: '#c8cdd6',
+              borderTop: '2px solid #c8cdd6',
               paddingTop: '20px',
               width: '200px',
             }}
