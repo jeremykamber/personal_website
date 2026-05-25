@@ -1,0 +1,70 @@
+---
+title: "Strata: A Tiered Memory System for AI Agents"
+date: "2026-05-25"
+description: "Building a zero-dependency tiered memory system for AI agents that separates algorithmic lifecycle triggers from LLM compression — so you only pay for intelligence when it's actually needed."
+role: "Creator & Lead Developer"
+stack: ["Python", "SQLite", "Markdown", "CLI", "MCP"]
+id: "strata"
+---
+
+**[GitHub](https://github.com/jeremykamber/strata-memory) · [Blog Post](https://jeremykamber.com/blog/strata-a-tiered-memory-system-for-effective-ai-agents)**
+
+LLM memory is broken because it treats context as a flat plane. Everything goes into one vector database, or one context window. There's no concept that a memory from yesterday deserves different treatment than a memory from last year.
+
+Strata fixes this by borrowing an idea from geology: information settles into layers over time, and each layer is optimized for a different access pattern.
+
+## The Core Insight
+
+Every memory system I looked at — mem0, LangChain, OpenClaw — had the same flaw: they poll LLMs on every operation. A janitor agent constantly monitors, re-summarizes, and reorganizes memory. That's an LLM call per query just to check if something is old.
+
+**Strata separates the decision to move from the act of moving.**
+
+Algorithmic triggers (file timestamps, access counts) decide *when* data should migrate. The LLM only runs *to compress it* — and in the current architecture, even that step is optional. The Janitor just moves files between directories based on age. No API calls, no tokens burned.
+
+```
+1st Stratum (active/)      ← Agent reads/writes here. Files on disk.
+       │  Janitor migrates stale files (configurable age threshold)
+       ▼
+2nd Stratum (cooled/)      ← Query-only. Still files on disk.
+       │  Janitor evicts cold files (LRU-based)
+       ▼
+3rd Stratum (archive/)     ← JSON blobs + Shadow Index (SQLite FTS5)
+```
+
+## The Architecture
+
+The system is built around three filesystem directories:
+
+**1st Stratum** is the agent's working memory. Plain markdown files in `active/`. The agent reads and writes directly — no database, no vector index. An auto-generated `index.md` acts as the master map. When the agent asks "what's in my workspace?" it reads the index, not a vector database.
+
+**2nd Stratum** is where files go when they cool down. The Janitor moves them from `active/` to `cooled/` based on age (default: 14 days for projects, 60 for entities). The files are still markdown, still on disk. The agent can search them but can't write to them directly.
+
+**3rd Stratum** is the archive. The Janitor evicts cold files here based on LRU (default: 90 days since last access). The content is saved as JSON in `archive/`. A lightweight Shadow Index (SQLite with FTS5) keeps everything searchable by keyword. If a search finds something in the archive, the file gets rehydrated back to active automatically.
+
+## The Shadow Index
+
+This is the mechanism that makes infinite memory practical. When a file is archived, the Janitor doesn't just delete it. It stores a ghost entry — just keywords, a 200-character preview, and a pointer to the JSON file. A million ghosts cost practically nothing.
+
+When you search and find nothing in active or cooled, Strata hits the Shadow Index. A match triggers rehydration: the file gets pulled from the archive back into active, ready for the agent to read and edit.
+
+## Design Decisions
+
+**Zero dependencies.** The core has no pip packages. Not one. Phase 1 uses `pathlib`, Phases 2 and 3 use `sqlite3` and `json` — all stdlib. The only optional dependency is QMD for hybrid search, and even that's just a CLI call.
+
+**Files, not databases.** Every memory is a markdown file on disk. The agent can grep it, edit it, version it with git, pipe it anywhere. No API calls, no SDK required.
+
+**CLI-first.** The `strata` command is the primary interface. 18 commands covering read, write, search, lifecycle, daemon, and agent integration. Also exposes an MCP server for AI agents that speak the Model Context Protocol.
+
+**The daemon.** `strata serve` starts a background Janitor that runs migration and eviction on a schedule (default: every 15 minutes). It logs everything, handles signals gracefully, and starts with a dry-run cycle for safety.
+
+## Testing
+
+99 tests across 11 test files covering all three strata, the Janitor, the query engine, the daemon, the MCP server, and the CLI. Tests run in under 2 seconds.
+
+## What I Learned
+
+The biggest lesson was about what doesn't need an LLM. The original design had LLM compression during migration — feed a raw file to GPT-4o, get back a 200-word summary with entity tags. It worked, but it was overkill. The Janitor doesn't need to be smart. It needs to be reliable.
+
+Moving to a filesystem-only architecture eliminated the most expensive operation in the system. The Janitor went from "call an API and parse JSON" to "check a timestamp and maybe copy a file." The lifecycle management logic got simpler, the tests got faster, and the system became truly zero-dependency.
+
+The Shadow Index was the sleeper hit. I initially thought it was a minor feature, but it's what makes Strata fundamentally different from mem0 or QMD. Every other system either grows forever or deletes permanently. The Shadow Index is the first mechanism I've seen that allows infinite memory horizon without infinite storage cost.
