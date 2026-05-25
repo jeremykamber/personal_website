@@ -49,4 +49,14 @@ export const projects = [
     id: "friendly",
     slug: "friendly",
   },
+  {
+    title: "Strata",
+    role: "Creator & Lead Developer",
+    description:
+      "Tiered memory system for AI agents. Zero-dependency, filesystem-based lifecycle management with automatic migration and eviction between three strata.",
+    stack: ["Python", "SQLite", "Markdown", "CLI"],
+    date: "May 2026 – Present",
+    id: "strata",
+    slug: "strata",
+  },
 ];
