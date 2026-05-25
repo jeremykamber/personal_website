@@ -1,55 +1,31 @@
-import { Separator } from "@/components/ui/separator";
-import { getPosts } from "@/lib/posts";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { projects } from "@/lib/projects";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { ScrollReveal } from "@/components/scroll-reveal";
 
 export default function Home() {
-  const posts = getPosts().slice(0, 3);
-  const featured = projects.slice(0, 3);
-
   return (
-    <div className="space-y-12 site-accent">
-      <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-4">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Jeremy Kamber
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
-              Full-stack Developer and Product Manager based in Seattle.
-              I build AI products, with a focus on making LLMs feel more human.
-            </p>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse-slow"></span>
-                <span className="text-muted-foreground">Available for projects</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <span className="text-muted-foreground/60">Open source:</span>
-              <div className="flex items-center gap-3">
-                <a href="https://github.com/jeremykamber/echo-journal-mvp" target="_blank" rel="noopener noreferrer" className="group hover:text-foreground transition-colors font-medium flex items-center gap-1.5">
-                  <span className="font-semibold">Echo</span>
-                  <span className="text-muted-foreground/50 text-xs hidden sm:inline">· AI journaling app</span>
-                </a>
-                <span className="text-muted-foreground/30">|</span>
-                <a href="https://github.com/jeremykamber/deepbound" target="_blank" rel="noopener noreferrer" className="group hover:text-foreground transition-colors font-medium flex items-center gap-1.5">
-                  <span className="font-semibold">DeepBound</span>
-                  <span className="text-muted-foreground/50 text-xs hidden sm:inline">· AI user testing</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 shrink-0">
+    <div className="space-y-14">
+      {/* Hero */}
+      <section className="group/hera space-y-6">
+        <div className="space-y-6">
+          <h1 className="animate-fade-up text-4xl min-[400px]:text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter text-foreground leading-[1.1] sm:leading-none transition-[text-shadow] duration-500 ease-expo hover:[text-shadow:0_0_60px_oklch(0.62_0.09_220/0.12)]">
+            Jeremy Kamber
+          </h1>
+          <div
+            className="animate-fade-up w-20 h-[1.5px] bg-docklight transition-all duration-500 ease-expo group-hover/hera:w-28 group-hover/hera:h-[2px] group-hover/hera:opacity-90"
+            style={{ animationDelay: "100ms" }}
+          />
+          <p
+            className="animate-fade-up text-base text-muted-foreground leading-relaxed max-w-prose"
+            style={{ animationDelay: "200ms" }}
+          >
+            Full-stack Developer and Product Manager based in Seattle.
+            I build AI products with a focus on making LLMs feel more human.
+          </p>
+          <div
+            className="animate-fade-up flex items-center gap-3"
+            style={{ animationDelay: "300ms" }}
+          >
             <Link href="/portfolio" prefetch={false}>
               <Button>View work</Button>
             </Link>
@@ -58,76 +34,105 @@ export default function Home() {
             </a>
           </div>
         </div>
-      </section>
 
-      <Separator />
-
-      <section className="space-y-6">
-        <div className="flex justify-between items-baseline">
-          <h2 className="text-xl font-semibold tracking-tight">Writing</h2>
-          <Button variant="link" asChild className="text-sm text-muted-foreground p-0 h-auto font-normal">
-            <Link href="/blog">View all</Link>
-          </Button>
-        </div>
-
-        <div className="space-y-4">
-          {posts.map((post, index) => (
-            <div key={post.slug}>
-              <Link href={`/blog/${post.slug}`} className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline group cursor-pointer py-1 gap-1 sm:gap-4">
-                <div className="flex items-baseline gap-3">
-                  <h3 className="text-base font-medium group-hover:underline">
-                    {post.title}
-                  </h3>
-                  <span className="hidden sm:block text-xs text-muted-foreground/60 shrink-0">
-                    {post.readingTime} min read
-                  </span>
-                </div>
-                <span className="text-sm text-muted-foreground tabular-nums shrink-0">
-                  {new Date(post.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                </span>
-              </Link>
-              {index < posts.length - 1 && <Separator className="opacity-50 mt-3" />}
-            </div>
-          ))}
+        <div
+          className="animate-fade-up flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground border-t border-border/50 pt-5"
+          style={{ animationDelay: "400ms" }}
+        >
+          <span>Open source projects</span>
+          <span className="text-border">·</span>
+          <a
+            href="https://github.com/jeremykamber/echo-journal-mvp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-docklight transition-all duration-300 ease-expo hover:underline hover:underline-offset-4 hover:decoration-docklight/30 font-medium"
+          >
+            Echo
+          </a>
+          <span className="text-border">·</span>
+          <a
+            href="https://github.com/jeremykamber/deepbound"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-docklight transition-all duration-300 ease-expo hover:underline hover:underline-offset-4 hover:decoration-docklight/30 font-medium"
+          >
+            DeepBound
+          </a>
         </div>
       </section>
 
+      <div className="w-full h-px bg-border/50" />
+
+      {/* Start Here */}
       <section className="space-y-4">
-        <div className="flex justify-between items-baseline">
-          <h2 className="text-xl font-semibold tracking-tight">Projects</h2>
-          <Button variant="link" asChild className="text-sm text-muted-foreground p-0 h-auto font-normal">
-            <Link href="/portfolio">View all</Link>
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {featured.map((p) => (
-            <Card key={p.id} className="border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-sm font-medium">{p.title}</CardTitle>
-                  <span className="text-xs text-muted-foreground/60">{p.date.split(' – ')[0]}</span>
-                </div>
-                <p className="text-xs text-muted-foreground/80">{p.role}</p>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">{p.description}</p>
-                <div className="flex gap-2 flex-wrap">
-                  {p.stack.slice(0, 3).map((tech) => (
-                    <Badge key={tech} variant="secondary" className="rounded-none text-[10px] font-normal uppercase tracking-wider bg-accent/50 border-border/50">
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <Link href={`/portfolio/${p.slug}`} className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:underline group">
-                    View
-                    <span className="transition-transform group-hover:translate-x-0.5">→</span>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ScrollReveal>
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-px bg-docklight" />
+            <span className="text-xs font-medium text-docklight uppercase tracking-widest">
+              Start here
+            </span>
+          </div>
+        </ScrollReveal>
+        <ScrollReveal delay={100}>
+          <div className="space-y-3">
+            <Link
+              href="/portfolio/strata"
+              className="group inline-block"
+            >
+              <h2 className="text-2xl font-bold tracking-tight group-hover:text-docklight transition-colors">
+                Strata: A Tiered Memory System for AI Agents
+              </h2>
+            </Link>
+            <p className="text-muted-foreground leading-relaxed max-w-prose">
+              A zero-dependency tiered memory system that separates algorithmic
+              lifecycle triggers from LLM compression. You only pay for
+              intelligence when it&apos;s needed.
+            </p>
+            <Link
+              href="/portfolio/strata"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-docklight transition-colors group"
+            >
+              Read the case study
+              <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            </Link>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* Writing */}
+      <section className="space-y-4">
+        <ScrollReveal>
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-px bg-docklight" />
+            <span className="text-xs font-medium text-docklight uppercase tracking-widest">
+              A taste of my writing
+            </span>
+          </div>
+        </ScrollReveal>
+        <ScrollReveal delay={100}>
+          <div className="space-y-3">
+            <Link
+              href="/blog/don-t-vibe-code-engineer-code"
+              className="group inline-block"
+            >
+              <h2 className="text-2xl font-bold tracking-tight group-hover:text-docklight transition-colors">
+                Don&apos;t Vibe Code. Engineer Code.
+              </h2>
+            </Link>
+            <p className="text-muted-foreground leading-relaxed max-w-prose">
+              My framework for engineering with AI agents. Writing syntax is a
+              solved commodity. Communicating intent and defining requirements is
+              where the real engineering is.
+            </p>
+            <Link
+              href="/blog/don-t-vibe-code-engineer-code"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-docklight transition-colors group"
+            >
+              Read the article
+              <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            </Link>
+          </div>
+        </ScrollReveal>
       </section>
     </div>
   );
