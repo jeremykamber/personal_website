@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-25T00:00:00.000Z",
+  "title": "Design System: Jeremy Kamber Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Midnight Slate",
+        "canonical": "oklch(0.05 0.008 260)",
+        "tonalRamp": ["oklch(0.03 0.005 260)", "oklch(0.05 0.008 260)", "oklch(0.08 0.01 260)", "oklch(0.12 0.012 260)", "oklch(0.18 0.014 260)", "oklch(0.25 0.015 260)", "oklch(0.35 0.018 260)", "oklch(0.50 0.02 260)"]
+      },
+      "neutral-surface": {
+        "role": "neutral",
+        "displayName": "Surface Slate",
+        "canonical": "oklch(0.09 0.01 260)",
+        "tonalRamp": ["oklch(0.05 0.008 260)", "oklch(0.09 0.01 260)", "oklch(0.13 0.012 260)", "oklch(0.18 0.014 260)", "oklch(0.25 0.015 260)", "oklch(0.35 0.018 260)", "oklch(0.50 0.02 260)", "oklch(0.65 0.02 260)"]
+      },
+      "neutral-elevated": {
+        "role": "neutral",
+        "displayName": "Elevated Slate",
+        "canonical": "oklch(0.13 0.012 260)",
+        "tonalRamp": ["oklch(0.08 0.01 260)", "oklch(0.13 0.012 260)", "oklch(0.18 0.014 260)", "oklch(0.25 0.015 260)", "oklch(0.35 0.018 260)", "oklch(0.50 0.02 260)", "oklch(0.65 0.02 260)", "oklch(0.78 0.02 260)"]
+      },
+      "fg-primary": {
+        "role": "neutral",
+        "displayName": "Luminous Cloud",
+        "canonical": "oklch(0.82 0.008 260)",
+        "tonalRamp": ["oklch(0.50 0.008 260)", "oklch(0.60 0.008 260)", "oklch(0.70 0.008 260)", "oklch(0.78 0.008 260)", "oklch(0.82 0.008 260)", "oklch(0.88 0.008 260)", "oklch(0.92 0.008 260)", "oklch(0.96 0.008 260)"]
+      },
+      "fg-muted": {
+        "role": "neutral",
+        "displayName": "Fog",
+        "canonical": "oklch(0.55 0.02 250)",
+        "tonalRamp": ["oklch(0.25 0.02 250)", "oklch(0.35 0.02 250)", "oklch(0.45 0.02 250)", "oklch(0.55 0.02 250)", "oklch(0.65 0.02 250)", "oklch(0.72 0.02 250)", "oklch(0.80 0.02 250)", "oklch(0.88 0.02 250)"]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Shadow Line",
+        "canonical": "oklch(0.20 0.015 260)",
+        "tonalRamp": ["oklch(0.10 0.015 260)", "oklch(0.15 0.015 260)", "oklch(0.20 0.015 260)", "oklch(0.25 0.015 260)", "oklch(0.32 0.015 260)", "oklch(0.40 0.015 260)", "oklch(0.50 0.015 260)", "oklch(0.60 0.015 260)"]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Docklight",
+        "canonical": "oklch(0.62 0.09 220)",
+        "tonalRamp": ["oklch(0.30 0.09 220)", "oklch(0.40 0.09 220)", "oklch(0.50 0.09 220)", "oklch(0.62 0.09 220)", "oklch(0.72 0.09 220)", "oklch(0.80 0.09 220)", "oklch(0.88 0.09 220)", "oklch(0.94 0.09 220)"]
+      },
+      "accent-subtle": {
+        "role": "primary",
+        "displayName": "Docklight Glow",
+        "canonical": "oklch(0.62 0.09 220 / 0.1)",
+        "tonalRamp": ["oklch(0.62 0.09 220 / 0.02)", "oklch(0.62 0.09 220 / 0.05)", "oklch(0.62 0.09 220 / 0.08)", "oklch(0.62 0.09 220 / 0.10)", "oklch(0.62 0.09 220 / 0.15)", "oklch(0.62 0.09 220 / 0.20)", "oklch(0.62 0.09 220 / 0.30)", "oklch(0.62 0.09 220 / 0.50)"]
+      },
+      "destructive": {
+        "role": "primary",
+        "displayName": "Signal Red",
+        "canonical": "oklch(0.55 0.12 25)",
+        "tonalRamp": ["oklch(0.25 0.12 25)", "oklch(0.35 0.12 25)", "oklch(0.45 0.12 25)", "oklch(0.55 0.12 25)", "oklch(0.65 0.12 25)", "oklch(0.72 0.12 25)", "oklch(0.80 0.12 25)", "oklch(0.88 0.12 25)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles — one per page. Tight tracking, commanding weight. H1 on home, blog posts, case studies." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings on index pages (Blog, Portfolio listing)." },
+      "title": { "displayName": "Title", "purpose": "Card titles, project names, subsection headings within prose." },
+      "body": { "displayName": "Body", "purpose": "All prose content. Max 70ch line length. Comfortable for extended reading." },
+      "label": { "displayName": "Label", "purpose": "Badge text, metadata labels, date stamps. All-caps, tight, discrete." },
+      "mono": { "displayName": "Mono", "purpose": "Code blocks, technical snippets, file paths. Only in prose areas." }
+    },
+    "shadows": [
+      { "name": "hover-lift", "value": "0 2px 8px oklch(0 0 0 / 0.25)", "purpose": "Subtle hover lift for interactive cards. Controlled rise, not a float." }
+    ],
+    "motion": [
+      { "name": "state-transition", "value": "150ms ease-out", "purpose": "Default duration and easing for all state transitions (hover, focus, color change)." },
+      { "name": "pulse-slow", "value": "2.4s ease-in-out infinite", "purpose": "Slow pulse for the availability status dot only." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Primary call-to-action button. High contrast, unmistakable. Used for 'View work', 'Resume', and primary navigation CTAs.",
+      "html": "<button class=\"ds-btn-primary\">View work</button>",
+      "css": ".ds-btn-primary { background: oklch(0.82 0.008 260); color: oklch(0.05 0.008 260); padding: 8px 16px; border: none; border-radius: 2px; font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: opacity 150ms ease-out; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.62 0.09 220); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action. Subtle border treatment. Used alongside primary buttons for less prominent CTAs.",
+      "html": "<button class=\"ds-btn-outline\">Resume</button>",
+      "css": ".ds-btn-outline { background: transparent; color: oklch(0.82 0.008 260); padding: 8px 16px; border: 1px solid oklch(0.20 0.015 260); border-radius: 2px; font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 150ms ease-out; } .ds-btn-outline:hover { background: oklch(0.20 0.015 260 / 0.3); } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.62 0.09 220); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Tertiary action. No border, minimal footprint. Used for 'View all' links styled as buttons.",
+      "html": "<button class=\"ds-btn-ghost\">View all</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: oklch(0.82 0.008 260); padding: 8px 16px; border: none; border-radius: 2px; font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 150ms ease-out; } .ds-btn-ghost:hover { background: oklch(0.20 0.015 260 / 0.3); } .ds-btn-ghost:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.62 0.09 220); }"
+    },
+    {
+      "name": "Project Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Project showcase card. Used in the portfolio grid and featured section on the home page.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><div class=\"ds-card-title\">Echo</div><div class=\"ds-card-role\">Founder & Lead Developer</div></div><div class=\"ds-card-content\"><p class=\"ds-card-desc\">AI journaling app using local LLM inference and RAG. Reached 100+ users.</p><div class=\"ds-card-tags\"><span class=\"ds-badge\">React</span><span class=\"ds-badge\">LangChain</span><span class=\"ds-badge\">PostgreSQL</span></div></div><div class=\"ds-card-footer\">View case study &rarr;</div></div>",
+      "css": ".ds-card { background: oklch(0.09 0.01 260); border: 1px solid oklch(0.20 0.015 260); border-radius: 2px; padding: 24px; transition: background 150ms ease-out, box-shadow 150ms ease-out; display: flex; flex-direction: column; } .ds-card:hover { background: oklch(0.13 0.012 260); box-shadow: 0 2px 8px oklch(0 0 0 / 0.25); } .ds-card-header { margin-bottom: 16px; } .ds-card-title { font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; font-size: clamp(1.125rem, 2vw, 1.5rem); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: oklch(0.82 0.008 260); } .ds-card-role { font-size: 0.875rem; color: oklch(0.55 0.02 250); margin-top: 4px; } .ds-card-content { flex: 1; } .ds-card-desc { font-size: 0.875rem; color: oklch(0.55 0.02 250); line-height: 1.6; margin-bottom: 12px; } .ds-card-tags { display: flex; flex-wrap: wrap; gap: 8px; } .ds-badge { font-size: 0.625rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: oklch(0.82 0.008 260); background: oklch(0.20 0.015 260 / 0.3); padding: 2px 6px; border-radius: 2px; } .ds-card-footer { margin-top: 16px; font-size: 0.875rem; font-weight: 500; color: oklch(0.82 0.008 260); } .ds-card-footer:hover { text-decoration: underline; }"
+    },
+    {
+      "name": "Desktop Navigation",
+      "kind": "nav",
+      "refersTo": "button-ghost",
+      "description": "Top navigation bar. Horizontal row of page links with active state indicator.",
+      "html": "<nav class=\"ds-nav\"><a href=\"/\" class=\"ds-nav-logo\">JK</a><div class=\"ds-nav-links\"><a href=\"/\" class=\"ds-nav-link ds-nav-link-active\">Home</a><a href=\"/portfolio\" class=\"ds-nav-link\">Projects</a><a href=\"/blog\" class=\"ds-nav-link\">Writing</a></div></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; } .ds-nav-logo { font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; font-size: clamp(1.125rem, 2vw, 1.5rem); font-weight: 600; letter-spacing: -0.01em; color: oklch(0.82 0.008 260); text-decoration: none; } .ds-nav-links { display: flex; align-items: center; gap: 24px; } .ds-nav-link { font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; font-size: 1rem; font-weight: 500; color: oklch(0.55 0.02 250); text-decoration: none; transition: color 150ms ease-out; } .ds-nav-link:hover, .ds-nav-link-active { color: oklch(0.82 0.008 260); } .ds-nav-link:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.62 0.09 220); border-radius: 2px; }"
+    },
+    {
+      "name": "Reading Progress",
+      "kind": "custom",
+      "refersTo": "none",
+      "description": "Fixed reading progress bar at top of case study and blog post pages. Uses the Docklight accent.",
+      "html": "<div class=\"ds-progress-track\"><div class=\"ds-progress-fill\" style=\"width: 42%\"></div></div>",
+      "css": ".ds-progress-track { position: fixed; top: 0; left: 0; width: 100%; height: 4px; z-index: 50; } .ds-progress-fill { height: 100%; background: oklch(0.62 0.09 220); transition: width 150ms ease-out; }"
+    },
+    {
+      "name": "Blog Post Link",
+      "kind": "custom",
+      "refersTo": "none",
+      "description": "A blog post entry in the index list. Title with date on the same line.",
+      "html": "<div class=\"ds-blog-entry\"><a href=\"/blog/post\" class=\"ds-blog-link\"><div class=\"ds-blog-row\"><span class=\"ds-blog-title\">Why AI needs better interfaces</span><span class=\"ds-blog-date\">May 2026</span></div></a></div>",
+      "css": ".ds-blog-entry { padding: 4px 0; } .ds-blog-link { text-decoration: none; display: block; } .ds-blog-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; } .ds-blog-title { font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; font-size: 1rem; font-weight: 500; color: oklch(0.82 0.008 260); transition: text-decoration 150ms ease-out; } .ds-blog-link:hover .ds-blog-title { text-decoration: underline; } .ds-blog-date { font-size: 0.875rem; color: oklch(0.55 0.02 250); font-variant-numeric: tabular-nums; white-space: nowrap; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Midnight Studio",
+    "overview": "A dark, focused workspace where craftsmanship takes center stage. This is the portfolio equivalent of a developer's terminal at midnight — deep background, soft luminous text, and color used with surgical precision. The design recedes so the work occupies the foreground.\n\nThe system borrows its ethos from dark code editor themes (midnight.nvim specifically): healthy contrast without eye strain, semantic clarity without visual noise, and a cooler neutral palette punctuated by intentional accent warmth. It is emphatically not a generic dark-mode portfolio — the background is a deep cool slate, not pure black. The text is a soft blue-gray white, not harsh pure white. Every value is tuned for longevity: the site should be comfortable to read for extended sessions, not just glance at.\n\nWhat this system explicitly rejects: generic dev-portfolio templates (avatar heroes, skill bars, gradient sections, typing animations), SaaS dashboard aesthetics, glassmorphism, gradient text, side-stripe borders, and any element that screams 'framework template.' If someone could identify the boilerplate at a glance, it's failed.",
+    "keyCharacteristics": [
+      "Dark-focused: cool slate background, soft luminous foreground",
+      "Restrained palette: tinted neutrals with a single muted teal accent (≤10% surface)",
+      "Flat by default: tonal layering for depth, near-zero borders at rest",
+      "Sharp geometry: 2px radius throughout (rounded-sm only)",
+      "Terminal-adjacent: high legibility, low saturation, zero decoration",
+      "Content-forward: the work speaks; the UI is transparent"
+    ],
+    "rules": [
+      { "name": "The Docklight Rule", "body": "The accent appears on ≤10% of any screen. Its rarity is the point — when it appears, the user knows something is actionable. If the accent feels like a UI chrome color, it's being overused.", "section": "colors" },
+      { "name": "The No-Black, No-White Rule", "body": "Pure #000 and #fff are forbidden. Every 'black' is a deep cool slate; every 'white' is a soft blue-gray. This prevents visual crush and eye strain during extended reading.", "section": "colors" },
+      { "name": "The Single-Face Rule", "body": "No serif, no display font, no contrast pairing. Hierarchy is achieved entirely through weight, size, and spacing — not by switching typefaces. The discipline of a single variable font is the point.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. Shadows appear only as a response to state (hover, interaction). A resting surface with a shadow is a bug.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use the Docklight accent on interactive elements only — links, focus rings, progress bar.",
+      "Do use tonal layering for surface hierarchy: background → surface → elevated.",
+      "Do use 2px radius for all corners. The sharpness is intentional.",
+      "Do let the content breathe. Generous spacing between sections (48px+), tight spacing within components.",
+      "Do use weight and size for typographic hierarchy. Never use color to differentiate heading levels.",
+      "Do keep body text between 65–75 characters per line.",
+      "Do respect reduced-motion preferences.",
+      "Do test every screen in both light and dark mode if light mode is maintained."
+    ],
+    "donts": [
+      "Don't use pure #000 or #fff. Every surface has a subtle chromatic lean.",
+      "Don't use side-stripe borders (thick border-left as accent). Full borders or nothing.",
+      "Don't use gradient text, glassmorphism, or the hero-metric template.",
+      "Don't use identical card grids with icon + heading + text, repeated endlessly.",
+      "Don't use skill bars, avatar heroes, typing animations, or skill-tag grids.",
+      "Don't add decorative borders, ornamental flourishes, or stock imagery.",
+      "Don't animate CSS layout properties. Animate opacity and transforms only.",
+      "Don't use bounce or elastic easing. Use ease-out exponential curves.",
+      "Don't open modals as a first interaction pattern.",
+      "Don't nest cards."
+    ]
+  }
+}
