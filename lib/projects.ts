@@ -1,5 +1,25 @@
 export const projects = [
   {
+    title: "DeepBound",
+    role: "Creator & Lead Developer",
+    description:
+      "AI-powered user testing platform that automates feedback with high-fidelity personas. Uses deep binding of LLM virtual personas for consistent, realistic behavior.",
+    stack: ["Next.js", "TypeScript", "Tailwind", "Zustand", "Hexagonal Architecture"],
+    date: "2025 – Present",
+    id: "deepbound",
+    slug: "deepbound",
+  },
+  {
+    title: "Strata",
+    role: "Creator & Lead Developer",
+    description:
+      "Tiered memory system for AI agents. Zero-dependency, filesystem-based lifecycle management with automatic migration and eviction between three strata.",
+    stack: ["Python", "SQLite", "Markdown", "CLI"],
+    date: "May 2026 – Present",
+    id: "strata",
+    slug: "strata",
+  },
+  {
     title: "Bringforth Studio",
     role: "Founder & Product Manager",
     description:
@@ -20,16 +40,6 @@ export const projects = [
     slug: "echo",
   },
   {
-    title: "DeepBound",
-    role: "Creator & Lead Developer",
-    description:
-      "AI-powered user testing platform that automates feedback with high-fidelity personas. Uses deep binding of LLM virtual personas for consistent, realistic behavior.",
-    stack: ["Next.js", "TypeScript", "Tailwind", "Zustand", "Hexagonal Architecture"],
-    date: "2025 – Present",
-    id: "deepbound",
-    slug: "deepbound",
-  },
-  {
     title: "TradeTalent",
     role: "Database Engineer",
     description:
@@ -48,15 +58,5 @@ export const projects = [
     date: "Oct 2024 – June 2025",
     id: "friendly",
     slug: "friendly",
-  },
-  {
-    title: "Strata",
-    role: "Creator & Lead Developer",
-    description:
-      "Tiered memory system for AI agents. Zero-dependency, filesystem-based lifecycle management with automatic migration and eviction between three strata.",
-    stack: ["Python", "SQLite", "Markdown", "CLI"],
-    date: "May 2026 – Present",
-    id: "strata",
-    slug: "strata",
   },
 ];

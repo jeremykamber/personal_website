@@ -15,20 +15,22 @@ export default function Portfolio() {
         <div className="space-y-12">
             <div className="space-y-4">
                 <h1 className="text-4xl font-bold tracking-tight">Projects</h1>
+                <div className="w-12 h-px bg-docklight" />
                 <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
                     Selected projects and startups I've built or led. Focused on bridging the gap between design and scalable systems.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {projects.map((project) => (
-                    <ProjectInteractionTracker key={project.title} title={project.title}>
-                        <Link href={`/portfolio/${project.slug}`} className="block group">
-                            <Card className="border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1 h-full flex flex-col overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {projects.map((project, index) => (
+                    <div key={project.title} className={index === 0 ? 'md:col-span-2' : ''}>
+                    <ProjectInteractionTracker title={project.title}>
+                        <Link href={`/portfolio/${project.slug}`} className="block group h-full">
+                            <Card className="border-border bg-card text-card-foreground shadow-sm hover:bg-accent hover:shadow-md transition-all duration-150 ease-out hover:-translate-y-1 h-full flex flex-col overflow-hidden gap-4">
                                 <CardHeader className="relative">
                                     <div className="flex justify-between items-start">
                                         <div className="space-y-1">
-                                            <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors flex items-center gap-2">
+                                            <CardTitle className="text-xl font-bold group-hover:text-docklight transition-colors flex items-center gap-2">
                                                 {project.title}
                                                 <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                                             </CardTitle>
@@ -42,7 +44,7 @@ export default function Portfolio() {
                                     </div>
                                 </CardHeader>
                                 <CardContent className="flex-grow">
-                                    <p className="text-muted-foreground leading-relaxed mb-6">
+                                    <p className="text-muted-foreground leading-relaxed mb-4">
                                         {project.description}
                                     </p>
                                     <div className="flex flex-wrap gap-2">
@@ -50,7 +52,7 @@ export default function Portfolio() {
                                             <Badge
                                                 key={tech}
                                                 variant="secondary"
-                                                className="rounded-none text-[10px] font-normal uppercase tracking-wider bg-accent/50 border-border/50 group-hover:border-primary/50 transition-colors"
+                                                className="rounded-none text-[10px] font-normal uppercase tracking-wider bg-accent/50 border-border/50"
                                             >
                                                 {tech}
                                             </Badge>
@@ -66,6 +68,7 @@ export default function Portfolio() {
                             </Card>
                         </Link>
                     </ProjectInteractionTracker>
+                    </div>
                 ))}
             </div>
         </div>
