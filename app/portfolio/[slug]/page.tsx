@@ -7,14 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ReadingProgress } from "@/components/reading-progress";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
 type Props = {
   params: Promise<{
@@ -49,17 +41,20 @@ export default async function CaseStudyPage(props: Props) {
   }
 
 return (
-    <article className="max-w-4xl mx-auto py-12 px-6">
+    <article className="py-12">
       <ReadingProgress />
       <PostTracker title={study.title} slug={params.slug} />
 
-      <Link href="/portfolio" className="no-underline inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group px-3 py-1.5 -ml-3 rounded-sm hover:bg-muted/50">
-        <span className="transition-transform group-hover:-translate-x-0.5">←</span>
+      <Link
+        href="/portfolio"
+        className="no-underline inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-10 group"
+      >
+        <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
         <span>Projects</span>
       </Link>
 
       <div className="space-y-4 mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground break-words">
           {study.title}
         </h1>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-muted-foreground">
@@ -76,16 +71,19 @@ return (
         </div>
       </div>
 
-      <div className="prose prose-zinc dark:prose-invert max-w-none 
+      <div className="prose prose-zinc dark:prose-invert max-w-none break-words
         prose-headings:font-bold prose-headings:tracking-tight
-        prose-img:rounded-sm prose-img:border prose-img:border-border prose-img:shadow-xl
+        prose-a:text-docklight prose-a:no-underline hover:prose-a:underline
+        prose-img:max-w-full prose-img:rounded-sm prose-img:border prose-img:border-border prose-img:shadow-xl
         prose-strong:text-foreground
-        prose-p:leading-relaxed prose-p:text-muted-foreground prose-p:text-lg">
+        prose-p:leading-relaxed prose-p:text-muted-foreground prose-p:text-lg
+        prose-code:text-sm
+        prose-pre:overflow-x-auto prose-pre:bg-card prose-pre:border prose-pre:border-border">
         <MDXRemote source={study.content} />
       </div>
 
       <footer className="mt-20 pt-8 border-t border-border">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Jeremy Kamber
           </p>
