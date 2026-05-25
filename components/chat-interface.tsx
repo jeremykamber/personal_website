@@ -144,9 +144,9 @@ export function ChatInterface() {
                 <div className="flex justify-start">
                   <div className="bg-muted rounded-2xl p-3 rounded-tl-none animate-pulse">
                     <div className="flex gap-1">
-                      <div className="h-1.5 w-1.5 rounded-full bg-foreground/20 animate-bounce" />
-                      <div className="h-1.5 w-1.5 rounded-full bg-foreground/20 animate-bounce [animation-delay:0.2s]" />
-                      <div className="h-1.5 w-1.5 rounded-full bg-foreground/20 animate-bounce [animation-delay:0.4s]" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-foreground/20 animate-pulse" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-foreground/20 animate-pulse [animation-delay:0.2s]" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-foreground/20 animate-pulse [animation-delay:0.4s]" />
                     </div>
                   </div>
                 </div>

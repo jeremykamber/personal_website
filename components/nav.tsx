@@ -42,7 +42,7 @@ export function Nav() {
       <div className="md:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="-ml-3 h-10 w-10">
+            <Button variant="ghost" size="icon" className="-ml-3 h-11 w-11">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle menu</span>
             </Button>
