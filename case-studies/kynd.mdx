@@ -1,0 +1,199 @@
+---
+title: "Kynd: AI-Powered User Testing with High-Fidelity Synthetic Personas"
+date: "2026-06-18"
+description: "Building a platform that generates realistic synthetic personas from minimal input and runs them against live websites for automated user testing, pricing analysis, and behavioral research."
+role: "Creator & Lead Developer"
+stack: ["Next.js 16", "TypeScript", "Tailwind v4", "shadcn/ui", "Zustand", "Hexagonal Architecture", "Playwright", "Stagehand"]
+id: "kynd"
+---
+
+**[GitHub](https://github.com/jeremykamber/deepbound)**
+
+## The Problem
+
+Early-stage founders need to validate their product with real users before building. But recruiting human test participants is slow, expensive, and fundamentally doesn't scale.
+
+Run five user testing sessions and you get five data points. But what if you need feedback on fifty variations of your pricing page? Or what if you want to see how twenty different customer segments would react to the same feature? The math doesn't work with human recruitment — you're bottlenecked by time, money, and participant availability.
+
+Even when you get humans in a room, the problem persists: a researcher who's run 20 interviews cannot then simulate how those 20 people would react to 5 different feature concepts. The insight is locked in transcripts, frozen in time.
+
+**Kynd is my answer to this problem:** generate realistic, opinionated synthetic personas from minimal input — a text description or raw interview transcripts — then run them against live websites to get structured behavioral feedback at scale.
+
+---
+
+## The Core Concept: Deep Binding of LLM Virtual Personas
+
+The name "deep binding" comes from foundational research by Moon, Kang et al. (UC Berkeley, 2024) that distinguished two modes of persona prompting:
+
+- **Shallow binding:** The LLM answers as an out-group member *believes* an in-group member would — producing stereotypical, polarized responses.
+- **Deep binding:** The LLM answers as an authentic in-group member — producing nuanced behavior matching real human distributions.
+
+The research demonstrated that **narrative backstories** generated as extended multi-turn interview transcripts achieve up to **87% improvement** (measured by Wasserstein Distance) over demographic-only prompting for matching human responses.
+
+Kynd operationalizes this. Instead of throwing "describe a persona" at an LLM and hoping for the best, the platform uses a layered inference system:
+
+1. **Narrative backstories** (Moon 2024) — 14-18% better behavioral alignment than demographic-only prompts
+2. **Compartmentalized prompts** (Wang 2024b) — 4 distinct compartments (`<<PERSONA IDENTITY>>`, `<<PSYCHOGRAPHIC PROFILE>>`, `<<EPISTEMIC BOUNDARIES>>`, `<<BEHAVIORAL GUARDRAILS>>`) to prevent attention dilution across the persona definition
+3. **PB&J psychological scaffolds** (Joshi 2025) — structured values, fears, and decision-making frameworks that improve adherence by 6-9%
+4. **Persona anchors** (SyTTA/Atri 2026) — 4-16 token identifiers injected every turn, reducing persona drift by 40-60%
+5. **ID-RAG** (Tan 2025) — retrieves relevant persona backstory chunks during inference for factual grounding
+6. **Multi-turn evaluation** using InCharacter (Wang 2024a) at 76.6% dimensional accuracy and PICon interrogation (Atri 2026b) for catching contradictions
+
+These techniques are combined into a single coherent system. Most "AI persona" products use one or two of these. Kynd uses all six.
+
+---
+
+## Architecture: Hexagonal with Dependency Flow Inward
+
+The codebase follows strict Hexagonal Architecture (Ports & Adapters), keeping domain logic decoupled from all infrastructure concerns. Dependency flows inward — the domain layer has zero external dependencies.
+
+```
+UI Layer (src/ui, src/components, src/app)
+  → Actions Layer (src/actions) — Server actions, thin wrappers
+    → Application Layer (src/application) — Use cases orchestrate domain logic
+      → Domain Layer (src/domain) — Entities + Port interfaces — pure TypeScript, zero deps
+        → Infrastructure Layer (src/infrastructure) — Adapters implement the ports
+```
+
+### Domain Layer (`src/domain/`)
+
+**Entities:** `Persona` (Big Five OCEAN 0-100, values, fears, backstory, communication style, pricing sensitivity, epistemic boundaries, behavioral guardrails, domain expertise — all Zod-validated), `PricingAnalysis` (6 score dimensions × reason + risks + recommendations + gaze points), `DebateRoom`, `Simulation`, `CriticEvaluation`.
+
+**Port interfaces:** 10 ports defining every external dependency — `LlmServicePort`, `IChatServicePort`, `ICriticServicePort`, `IMemoryServicePort`, `IGazePredictionPort`, `VisionAnalysisServicePort`, `BrowserServicePort`, `DatabaseServicePort`, `UserRepositoryPort`, `LlmClientPort`.
+
+### Infrastructure Layer (`src/infrastructure/`)
+
+**Adapters** implement the port interfaces. Key examples:
+
+- `PersonaPromptCompiler` — Builds the 4-compartment persona prompt with anchor injection
+- `IdRagStore` — N-gram retrieval store for chunked persona backstory + interview data
+- `VisionAnalysisAdapter` — Qwen VL-powered pricing page visibility analysis
+- `InCharacterEvaluator` — Psychometric interview evaluation scoring consistency
+- `RemotePlaywrightAdapter` — Browser automation for live website interaction
+
+### Key Design Pattern: Port-Implementor
+
+Every infrastructure service follows the same pattern — constructor takes `LlmServiceImpl`, delegates LLM calls through `createChatCompletion()` with exponential backoff (2^retry × 2000ms + random(1000ms), max 5 retries). Every call has typed retry policies, error classification, and graceful degradation.
+
+---
+
+## Key Features
+
+### Persona Creation Pipeline
+
+From minimal input → brainstorm → narrative backstory (Anthology method) → PB&J psychological scaffolds → behavioral insights → ID-RAG ingestion. A single text description of a target user type generates a complete, nuanced persona with consistent decision-making patterns.
+
+**Persona variation generation** uses Big Five trait sliders — adjust a trait and the system generates N fresh personas with new values, fears, and backstories consistent with the adjusted profile. Each is an independent individual, not a trait tweak.
+
+### Pricing Analysis Engine
+
+This is Kynd's flagship feature. A two-phase automated flow:
+
+**Phase 1 — Scouting:** The system navigates to a target URL using Playwright, finds the pricing section via Guided Strike (pattern-matching) or Linear Scan (exhaustive search), captures screenshot + DOM content.
+
+**Phase 2 — Analysis:** Each persona runs in parallel (concurrency 5) through a compartmentalized prompt + ID-RAG retrieval + vision LLM analysis of the pricing page screenshot. Results stream back with scores across 6 dimensions (clarity, value perception, trust, exploration intent, analysis intent, buy intent), risks, and recommendations.
+
+The initial streaming implementation was unreliable — weak schema enforcement, brittle timeout handling, HMR killing server-side stores. I **overhauled it** to a completion-based architecture with Zod schema validation, a strict 3-minute timeout per persona, `globalThis` store persistence, and a comprehensive `AnalysisLogger` for debugging. The result is stable, deterministic analysis that doesn't drop results mid-stream.
+
+### Interview-to-Persona Pipeline
+
+The most technically interesting feature. Rather than extracting personality traits from interview transcripts (which research shows maxes at r < 0.26 correlation — Zhu et al., 2025), this pipeline takes a different approach:
+
+1. **Extract** — Single-shot LLM call per transcript, extracting only directly observable signals: pain points, goals, values with verbatim quotes
+2. **Pool** — Trigram-similarity dedup with frequency weighting. Pure math, no LLM calls
+3. **Sample** — Weighted draw from the distribution, producing N personas where N > interview count. One validation LLM call to check for contradictions
+4. **Generate** — Feeds sampled signals into the existing persona generation flow
+5. **Ingest** — Persona backstory + interview chunks stored in ID-RAG for retrieval
+
+**Target: 20 interviews → 40 personas in under 60 seconds.** The insight is that the value of personas is *scale*, not fidelity to any single interview.
+
+### Debate Room
+
+Multi-persona round-based debate on a proposal. Streaming responses, human interjection, any number of participants. Events: `debate_start`, `round_start`, `persona_start`, `chunk`, `persona_end`, `round_end`, `debate_end`. Each persona argues from their unique perspective, enabling structured exploration of how different user types react to a product decision.
+
+### Chat with ID-RAG Memory
+
+Compartmentalized prompt + ID-RAG (backstory + interview chunks) + persona anchors injected every turn + periodic re-grounding every 4 turns. The persona stays in character across an extended conversation, grounded in their specific history and preferences.
+
+---
+
+## Technical Challenges & Solutions
+
+### 1. Streaming Reliability in Server Actions
+
+**Problem:** The original streaming-based pricing analysis was unreliable — schema enforcement was weak, timeouts were brittle, and Next.js HMR killed server-side stores mid-analysis.
+
+**Solution:** Switched to completion-based architecture with Zod schemas for strict validation, a 3-minute timeout per persona (enforced by `AbortController`), `globalThis` for store persistence across HMR cycles, and a comprehensive `AnalysisLogger` that captures every step for debugging. Results: stable, deterministic, no dropped results.
+
+### 2. The r < 0.26 Ceiling
+
+**Problem:** Research shows zero-shot Big Five extraction from interview transcripts caps at r < 0.26 correlation with actual personality scores (Zhu et al., 2025). Extracting personality from transcripts is essentially snake oil.
+
+**Solution:** Don't extract personality. Extract only *directly observable signals* — pain points, goals, values with verbatim quotes — then *generate* personality consistent with those signals. This bypasses the r < 0.26 ceiling entirely.
+
+### 3. Persona Drift Over Multi-Turn Conversations
+
+**Problem:** Without intervention, LLM personas drift toward "helpful assistant" default behavior within 3-4 turns (Atri, 2026b).
+
+**Solution:** Triple anchor injection every turn — in the system prompt header, before action history, and immediately before generation (SyTTA principle: the last text before output has outsized influence). Combined with periodic re-grounding every 4 turns, this reduces drift by 40-60%.
+
+### 4. LLM Inference Costs at Scale
+
+**Problem:** Running 40 personas × multiple turns × vision analysis would be expensive with frontier models.
+
+**Solution:** Tiered model selection — DeepSeek V4 Flash (fast + reasoning tokens, ~$0.30/M input) for text generation and smaller extraction tasks, Qwen VL 30B A3B (MoE, ~$0.15/M input) for vision analysis, Claude Sonnet 4 reserved for the browser agent where persona reasoning quality is critical. Concurrency limits: 20 LLM calls max, 5 parallel persona analyses.
+
+### 5. Browser Agent Reliability
+
+**Problem:** Stagehand's black-box `agent()` didn't expose hooks for persona anchor injection or reflection, making consistent persona-driven browsing difficult.
+
+**Solution:** Custom agent loop using Stagehand's `act()` for action execution (cheaper than CUA at ~$0.02 vs ~$0.30 per action) with full vision mode (screenshots as image inputs every step, before and after every action). The custom loop allows triple anchor injection per step and structured JSON reasoning output.
+
+---
+
+## Testing Approach
+
+| Type | Framework | Scope |
+|------|-----------|-------|
+| Unit | Vitest | ~70 tests across domain entities, adapters, use cases |
+| Integration | Vitest | ~10 tests for pipeline orchestration |
+| E2E | Vitest + Playwright | ~6 tests covering full flows |
+
+**E2E pattern:** Build mock data → seed Zustand's localStorage-backed store → navigate to page → assert UI rendering → capture console logs → test legacy fallback → test transitions → save screenshots for visual verification.
+
+Key test files: `test/persona-system-e2e.test.ts` (10 tests, full persona pipeline), `test/pricing-analysis-e2e.test.ts` (4 tests: rendering, trace logs, transition, legacy fallback), `test/pricing-analysis-full-flow.test.ts` (dashboard → analysis → list → detail).
+
+---
+
+## Design Philosophy
+
+**Brand:** Sharp · Confident · Minimal. "The Instrument Panel" — a precise research instrument.
+
+- **Invisible UI, visible data** — interface disappears so insights take focus
+- **Snappy mechanical precision** — 150ms transitions, expo easing, zero bounce
+- **Progressive sophistication** — simple for beginners, deep for power users
+- **Dark mode primary**, one cerulean blue accent occupying ≤10% of any screen
+- **The Rarity Rule** — accent occupies ≤10% of any screen
+- **The No-Black Rule** — never use `#000`, every surface has chromatic temperature
+- **The Mono-Data Rule** — all numbers in Geist Mono with tabular-nums
+
+---
+
+## What I Learned
+
+Building Kynd taught me that synthetic persona fidelity isn't about one magic technique — it's about layering multiple research-backed inference-time methods in a coherent system. Each technique (compartmentalized prompts, narrative backstories, PB&J scaffolds, persona anchors, ID-RAG) contributes a few percentage points of improvement. Combined, they produce behavior that's qualitatively different from a generic LLM persona.
+
+The streaming → completion architecture overhaul taught me to be skeptical of streaming for structured data analysis. Streaming is great for chat. For data that needs to be validated, aggregated, and displayed in a dashboard, completion-based with strict schema validation is more reliable.
+
+But the biggest lesson was the **interview-to-persona pipeline design**. The decision to *not* extract personality from transcripts (because the research says it maxes at r < 0.26) and instead extract only observable signals, pool them mathematically, and generate personality consistent with those signals — that's the kind of engineering judgment that comes from reading the literature and understanding *why* a naive approach fails.
+
+The "deepbound" GitHub URL remains for backward compatibility. The product is Kynd.
+
+---
+
+## What's Next
+
+- Deploy the browser agent system for autonomous persona-driven website navigation (pre-implementation design is 802 lines of spec)
+- Full interview-to-persona pipeline in production
+- Multi-model pricing analysis with per-provider cost tracking
+- Automated persona variation A/B testing
