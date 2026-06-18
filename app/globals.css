@@ -109,6 +109,35 @@
     }
   }
 
+  /* Table styles for prose content */
+  .prose table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .prose thead {
+    @apply bg-accent/30;
+  }
+
+  .prose th {
+    @apply border border-border px-4 py-2.5 text-left font-semibold text-foreground;
+  }
+
+  .prose td {
+    @apply border border-border px-4 py-2.5 text-muted-foreground;
+  }
+
+  .prose tbody tr:hover {
+    @apply bg-accent/10;
+  }
+
+  .prose tbody tr:first-child td {
+    @apply border-t;
+  }
+
+  .prose code {
+    @apply text-xs;
+  }
+
   /* Subtle grain texture and site accent positioning (respects reduced motion) */
   @media (prefers-reduced-motion: no-preference) {
 

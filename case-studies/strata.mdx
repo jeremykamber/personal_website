@@ -1,7 +1,7 @@
 ---
 title: "Strata: A Tiered Memory System for AI Agents"
 date: "2026-06-18"
-description: "Building a zero-dependency, filesystem-first tiered memory system for AI agents. Core insight: algorithmic lifecycle triggers separate the decision to move data from the act of compressing it, eliminating LLM burn from routine memory management."
+description: "A zero-dependency, filesystem-first tiered memory system for AI agents. Core insight: algorithmic lifecycle triggers eliminate LLM burn from routine memory management."
 role: "Creator & Lead Developer"
 stack: ["Python", "SQLite FTS5", "Markdown", "CLI", "MCP"]
 id: "strata"
@@ -9,189 +9,91 @@ id: "strata"
 
 **[GitHub](https://github.com/jeremykamber/strata-memory) · [Blog Post](https://jeremykamber.com/blog/strata-a-tiered-memory-system-for-effective-ai-agents)**
 
-Most memory systems treat all information the same way. A conversation from five minutes ago gets the same treatment as a decision from six months ago. Same storage cost. Same retrieval method. Same everything.
+---
 
-This is wasteful. Information decays over time, and your storage should reflect that.
+## Context
 
-**Strata separates the *decision* to move data from the *act* of compressing it.** Competing systems (mem0, OpenClaw, LangMem) use LLMs to constantly monitor and reorganize memory — every query triggers a check, every operation runs a janitor loop. Strata flips this: **algorithmic triggers** (file modification time, last access date, access count) decide *when* to move data. No AI needed. Only when a trigger fires is anything smarter invoked — and in the current architecture, even that step is just moving a file. No LLM, no compression, no token cost.
+I started building Strata as a solo project in March 2026, after months of frustration with every AI coding agent I used. Every session started blank. Context I'd built up over hours of conversation was gone the next day. The agent couldn't remember decisions we'd made, bugs we'd fixed, or architecture patterns we'd established. It was like Groundhog Day for every coding session.
+
+I was the user, the developer, and the product manager.
 
 ---
 
-## The Architecture: Three Geological Strata
+## Problem / Product Goal
 
-Memory lives in three filesystem directories, each with distinct latency and cost characteristics. Files move between them automatically based on age and access patterns.
+The problem was simple and maddening: **AI agents have no persistent memory.**
 
-### 1st Stratum — Active (`active/`)
+The existing solutions were all wrong in different ways:
 
-Working memory. The agent reads and writes plain markdown files directly. No database, no vector index, no API calls.
+- **Infinite context windows** — shove everything into the prompt. Degrades reasoning, burns tokens exponentially.
+- **Vector databases** — dump everything into embeddings and hope the similarity search surfaces what matters. Works for facts, fails for nuanced context.
+- **mem0, LangMem, OpenClaw** — Use LLMs to constantly monitor and reorganize memory. Every query triggers a check, every operation runs an LLM janitor loop. Works in demos, costs a fortune at scale.
 
-- **Latency:** ~1ms. **Cost:** Zero.
-- An auto-generated `index.md` lists every file with its first heading as a description — the agent reads this map to navigate, not a vector database.
-- Access tracking via file modification time.
-
-```python
-# From strata/storage.py:Stratum1Storage
-class Stratum1Storage:
-    def write(self, path: str, content: str) -> Path:
-        resolved = self._resolve(path)  # path traversal prevention
-        resolved.parent.mkdir(parents=True, exist_ok=True)
-        resolved.write_text(content, encoding="utf-8")
-        return resolved
-```
-
-### 2nd Stratum — Cooled (`cooled/`)
-
-When a file exceeds its decay threshold (default: 14 days for projects, 60 for entities, 7 for GTD tasks), the **Janitor** moves it to `cooled/`. Files stay as plain markdown — nothing is lost.
-
-- **Read-only via search** — the agent can query cooled files but not write to them directly.
-- **Bidirectional lifecycle:** If a cooled file is accessed ≥3 times (`promotion_threshold`), it gets automatically promoted back to active. Files cycle in both directions.
-- Access is tracked via a lightweight JSON sidecar (`stratum_2_access.json`) — no database needed.
-
-### 3rd Stratum — Archive (`archive/` + `shadow.db`)
-
-When a cooled file hasn't been accessed for 90 days (`lru_days`) with ≤1 access, the Janitor **evicts** it to archive.
-
-- Full content saved as JSON blob. A **Shadow Index** (SQLite with FTS5 full-text search) keeps it keyword-searchable — keywords + 200-character preview + file path. No vectors, no embeddings.
-- **A million archived entries cost less than a megabyte.** You never truly lose anything — it just gets put away until you need it again.
-- **Rehydration:** `strata rehydrate <shadow_id> --target=active|cooled` restores archived files. Auto-rehydration on read means searching for an archived file by path brings it back automatically.
+I wanted something that would let an agent remember last week's architecture decision without paying GPT-4o to read a 10KB file and decide whether it was still relevant. The goal was: **a memory system that costs nothing for routine operations, only spending money when intelligence is actually required.**
 
 ---
 
-## The Janitor: Algorithmic Lifecycle Management
+## Thought Process
 
-The Janitor (`strata/janitor.py`) is the only process that moves data between strata. It uses deterministic rules — zero LLM calls.
+My first attempt was a blog post. I sketched out a two-component system: a tiered memory store (Strata) plus a relational "agent-db" built on Postgres with pgvector. The idea was that Stratum 1 would be active files, Stratum 2 would be a Postgres-backed relational store with vector search, and Stratum 3 would be a compressed archive.
 
-| Operation | Direction | Trigger | Code |
-|-----------|-----------|---------|------|
-| **Migrate** | 1st → 2nd | File age ≥ decay threshold | `janitor.py:26-60` |
-| **Evict** | 2nd → 3rd | Age ≥ `lru_days` AND access ≤ `lru_min_access_count` | `janitor.py:62-90` |
-| **Promote** | 2nd → 1st | Access count ≥ `promotion_threshold` (default: 3) | `janitor.py:94-135` |
-| **Rehydrate** | 3rd → 1st/2nd | Manual or auto on `strata read` | `janitor.py:137-175` |
+I started building it. Wrote the three-tier storage layer, the janitor lifecycle logic, the CLI, the MCP server — about 11 commits in 3 days. And then I hit a wall.
 
-**Full cycle order:** Distill → Promote → Migrate → Evict. Distill runs first so transcripts are processed before they could be migrated. Promote runs before Migrate so promoted files aren't immediately re-migrated. This ordering was a hard-won lesson from early testing — getting the cycle order wrong caused files to oscillate between strata.
+The Postgres layer was going to add:
 
-Every operation supports `dry_run=True` for previews. The daemon's first cycle is always a dry run.
+- A hard dependency (must install and run Postgres)
+- Embedding costs for every file that moved between strata
+- A vector similarity query for every search
+- Schema management overhead for a feature I wasn't sure anyone needed
 
----
+I sat with this for two days. I had built a perfectly good three-tier system, but Stratum 2 was a third-party dependency that made the whole thing less useful, not more.
 
-## The Shadow Index
+**The "aha" moment came when I asked myself: what does the Janitor actually need?**
 
-When a file gets archived, the Janitor doesn't delete it. It stores a lightweight entry in SQLite FTS5:
+It doesn't need to be smart. It needs to check a timestamp, compare it to a threshold, and maybe copy a file from one directory to another. That's it. The LLM in the lifecycle loop was cargo-cult intelligence — I was adding smarts where reliability would do.
 
-```
-shadow_index: id, original_path, keywords, archive_path, summary_preview, evicted_at
-shadow_fts: FTS5 virtual table (auto-synced via triggers)
-```
+I removed the Postgres layer. Made Stratum 2 a filesystem directory. Changed the eviction trigger from "LLM decides this is stale" to "file hasn't been accessed in 90 days." Cut the entire embedding pipeline.
 
-A keyword search against the Shadow Index is enough to decide whether a memory is worth rehydrating. No vector embeddings, no reranking. When a search finds something in the archive, the file gets automatically pulled back into active — the memory comes back because it proved useful again.
+The Janitor went from "call an API and parse JSON" to "check a timestamp and maybe copy a file." The tests got faster. The install went from "pip install && docker-compose up" to "pip install && strata init." Zero dependencies. Zero ongoing cost. Zero LLM calls for routine operation.
 
-This is what separates Strata from systems like mem0 or QMD. Those either grow forever (infinite storage cost) or delete permanently (irrecoverable loss). The Shadow Index gives you an **infinite memory horizon at near-zero storage cost.**
+Then I realized the Shadow Index — a simple SQLite FTS5 keyword index for archived files — was actually the killer feature. Every competing system either grows forever (mem0 keeps everything in the vector DB, costs increase linearly) or deletes permanently (old data is just gone). The Shadow Index stores only keywords + a 200-char preview + a file path. A million entries cost less than a megabyte. When a search finds a match, the file gets rehydrated back to active automatically. You never truly lose anything — it just gets put away until you need it again.
 
 ---
 
-## Design Decisions & Trade-offs
+## Solution
 
-### Zero-Dependency Core
+**Strata is a three-tier filesystem memory system for AI agents, powered by an algorithmic janitor.**
 
-The package has **zero pip dependencies**. Not even `requests` — LLM API calls use stdlib `urllib.request`. Optional extras (`[openai]`, `[anthropic]`, `[all]`) add providers. QMD is an optional npm dependency for hybrid search.
+### Tier 1: Active
 
-**Trade-off:** More verbose HTTP code. **Benefit:** Zero supply chain risk, instant `pip install`, no version conflicts.
+Plain markdown files in `active/`. The agent reads and writes directly. An auto-generated `index.md` lists every file with its first heading as description — no vector database needed. Latency: ~1ms. Cost: zero.
 
-### Filesystem-First, Not Database-First
+### Tier 2: Cooled
 
-Every memory is a plain markdown file. `cat`, `echo`, `grep`, `git` all work. Files are the most agent-native format.
+Files move here when they exceed configurable age thresholds (14 days for projects, 60 for entities, 7 for GTD). Still plain markdown, just in a different directory. Read-only via search. If a cooled file gets accessed ≥3 times, it's automatically promoted back to active. **Bidirectional lifecycle.**
 
-**Trade-off:** No native relational queries or vector search. **Benefit:** Any agent tool can read/write memories without an SDK.
+### Tier 3: Archive
 
-### Algorithmic Janitor, No LLM for Lifecycle
+Files not accessed for 90 days get archived. Full content saved as JSON. A Shadow Index (SQLite FTS5) keeps everything keyword-searchable — no vectors, no embeddings. When a search hits the archive, the file is automatically rehydrated back to active.
 
-This is Strata's core differentiator. Migration, eviction, and promotion use only file age + access count. Compare to mem0 (LLM per query), OpenClaw (LLM per operation), LangMem (LLM per embedding). The Janitor doesn't need to be smart — it needs to be *reliable*.
+### The Janitor
 
-### LLM Compression Removed
+The only process that moves data between tiers. Four operations — migrate, evict, promote, rehydrate — all driven by file age and access count. Zero LLM calls. The daemon runs on a 15-minute interval, first cycle always a dry run.
 
-The original blog post described compressing 3,000-word documents to 200-word summaries at migration. The implementation copies files as-is. **Rationale:** cost, latency, information loss, cheap storage. A 10KB markdown file costs nothing to keep at full fidelity.
+### Integration with Pi (coding agent)
 
-### Multi-Component Path Matching
-
-Different content types have different decay rates. The config system (`config.py:get_decay_days()`) checks progressively longer path prefixes — "pi/conversations" (7 days) takes priority over "pi" (30 days) takes priority over the default (60 days). This was surprisingly tricky to implement correctly with edge cases around path ordering.
+A pi extension hook saves every conversation transcript automatically. An optional background distiller runs a cheap LLM (GPT-4o-mini, ~$0.01 per cycle) to extract facts. An MCP server exposes Strata tools over JSON-RPC 2.0. A skill install command supports 55+ agent formats.
 
 ---
 
-## The Daemon
+## Takeaways
 
-`strata serve` starts a background Janitor (`StrataDaemon`, `daemon.py:8-170`) that runs migration and eviction on a configurable interval (default: 900s / 15 minutes).
+**The Janitor doesn't need to be smart.** This was the single most important decision in the project. I almost built a system where every lifecycle operation required an LLM call. Removing that dependency made the system simpler, faster, cheaper, and more reliable. The lesson: face-value obvious complexity (filesystem operations are simple) was better than obviously-face-value simplicity (wrapping everything in an LLM prompt).
 
-- First cycle is always a dry run (unless `--live` flag)
-- Graceful shutdown on SIGINT/SIGTERM
-- PID file at `strata.pid`
-- Logs to `strata.log` with cost data tracking
-- Optional systemd service via `strata install-service`
+**The Shadow Index was an afterthought that became the killer feature.** I added it for completeness. It's the one thing that competitors (mem0, QMD, OpenClaw) don't replicate — they either grow forever or delete permanently. Sometimes the most important features emerge from what you do on the side, not what you plan.
 
----
+**Path matching is harder than it looks.** The config system needs to apply different decay rates for different content types — "pi/conversations" should decay faster than "pi/entities." Getting the multi-component path prefix matching right (with edge cases like "pi/conversations/longer/path" correctly matching "pi/conversations") took three attempts. The solution was checking progressively longer path prefixes in a loop — simple, correct, testable.
 
-## Pi Integration: Strata in Practice
+**Write-time simplicity, pay at read time.** The distiller writes append-only facts without dedup. Multiple facts about the same entity can coexist. The agent reconciles them by timestamp at read time. This sounds wasteful, but keeping the write path simple prevented a cascade of complexity (merge logic, conflict resolution, versioning) that would never have been worth it for a single-user tool.
 
-Strata is designed to be the memory layer for AI coding agents. The pi extension (`skills/pi/strata.ts`) hooks into the agent lifecycle:
-
-1. **`before_agent_start`**: Injects Strata architecture into the agent's system prompt — the agent knows about three tiers, CLI commands, and `strata add`/`strata search` patterns at every session start.
-2. **`agent_end`**: Saves the full conversation transcript to `pi/conversations/YYYY-MM-DD/YYYMMDDTHHmmss-{hash}.md`. No heuristic filtering — raw data is always preserved.
-
-**Background distillation** (optional, daemon-driven): When `pi-config.json` has `llm.enabled: true` and a valid API key, the daemon scans for undistilled transcripts, sends them in one batch to a cheap LLM (default GPT-4o-mini), and writes extracted facts to `pi/facts/`. Cost: ~$0.01 per 15-min cycle. Disabled by default.
-
-A **skill install** command (`strata skill install`) teaches agents about Strata via the Vercel Skills protocol, supporting 55+ agent formats (OpenCode, Claude Code, Cursor, Codex, Windsurf, etc.).
-
-An **MCP server** (`strata mcp`) exposes six Strata tools over JSON-RPC 2.0 for Claude Code and Claude Desktop compatibility.
-
----
-
-## Testing
-
-```
-16 test files · 137+ tests · full suite runs in under 2 seconds
-```
-
-| Test File | Tests | Coverage |
-|-----------|-------|----------|
-| `test_stratum1.py` | 12 | Write/read, dirs, list, delete, path traversal prevention, stale scans, pattern filtering |
-| `test_janitor.py` | 10+ | Migrate/live, evict/live, promote/threshold, rehydrate/active-cooled, maintenance ordering |
-| `test_query.py` | 7+ | Three-strata cascade, priority ordering, empty/no results, rehydration flags |
-| `test_integration.py` | 5+ | Full lifecycle, context manager, tool execution, CLI pipeline, QMD fallback |
-| `test_mcp.py` | 10+ | Initialize, tools/list, tools/call, error handling, shutdown |
-| `test_distiller.py` | 20+ | Config loading (6 cases), conversation scanning (4 cases), provider routing (2 cases) |
-| `test_daemon.py` | 14+ | Run once, live mode, eviction, status (4 cases), start/stop, logging, dry-run, custom paths |
-| `test_tracking.py` | 7 | Empty data, multiple cycles, value ranges, disclaimers, zero values, CLI command |
-| `test_config.py` | 7 | Backend defaults, backward compatibility, LRU thresholds, path-based decay |
-| `test_cli.py` | ~12 | Init, pi-install (5 scenarios), QMD setup, config management |
-| `test_qmd_setup.py` | 7 | Installation, reranker config, config migration |
-
-**Testing patterns:** Temporary directories for all file operations, mock `subprocess.run` for QMD/npx tests, `monkeypatch` for env vars and stdin, synthetic log files for daemon/cost tests. All tests are deterministic and require zero human intervention.
-
----
-
-## Development History
-
-**Phase 1 — Initial Build (Mar 15-17, 2026):** ~3 days, 11 commits from scratch — project structure, data models, three-tier storage, Janitor lifecycle, cascading query engine, agent tools, CLI, MCP server, daemon, test suite, README + Manifesto.
-
-**Phase 2 — Architecture Pivot (Mar 19):** The blog described a Postgres/pgvector "agent-db" for Stratum 2. I removed it. The pivot to filesystem-only eliminated the most expensive operation in the system and made Strata truly `pip install && go`.
-
-**Phase 3 — Skills & Agent Integration (Mar 21):** Skill bundle, package data, `strata skill install` CLI.
-
-**Phase 5 — Major Improvements (Jun 7-8):** 22 AI-executed tasks with 4 parallel review gates. Cost tracking, QMD setup, LRU access tracking, CLI improvements (JSON mode, pi-install, config get/set), Google-style docstrings, Pi agent skill bundle, CI publish workflow, comprehensive docs suite.
-
-**Phase 7 — CLI Refactor + v0.3.0b1 (Jun 8):** Monolithic `cli.py` → `cli/` package with `CommandRegistry`. 30+ commands organized in groups.
-
-**Phase 8 — Pi Knowledge Capture (Jun 17):** Always-on conversation capture + background LLM distillation. This was the result of a structured brainstorming → plan cycle that defined scope boundaries, success criteria, and implementation units before any code was written.
-
-**Total: ~60+ commits over 3 months, from initial project skeleton to v0.3.0b1.**
-
----
-
-## What I Learned
-
-The original design had LLM compression built into the migration step. You'd feed a raw file to GPT-4o and get back a 200-word summary with entity tags. It worked, but it was *overkill*. The Janitor doesn't need to be smart. It needs to be reliable.
-
-Moving to a filesystem-only architecture eliminated the most expensive operation in the system. The Janitor went from "call an API and parse JSON" to "check a timestamp and maybe copy a file." The lifecycle logic got simpler, the tests got faster, and the system became truly zero-dependency. **This was the single most important decision in the project.**
-
-The Shadow Index turned out to be the most important piece. I initially thought of it as a minor feature, but it's what separates Strata from systems like mem0 or QMD. Those either grow forever or delete permanently. The Shadow Index gives you an infinite memory horizon at near-zero storage cost. You never truly lose anything. It just gets put away until you need it again.
-
-**Forgetting is the feature.** Information decays on purpose. That's what makes memory useful. The right question isn't "how do I store everything?" — it's "how do I store each piece at the fidelity it deserves?"
+**Forgetting is the feature.** I started with "how do I store everything?" The right question was "how do I store each memory at the fidelity it deserves?" Information decays on purpose. That's what makes memory useful.

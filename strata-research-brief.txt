@@ -1,0 +1,48 @@
+# STRATA: TIERED MEMORY FOR AI AGENTS — RESEARCH BRIEF
+
+**Author:** Jeremy Kamber | **Version:** 0.3.0b1 | **License:** MIT
+**Repository:** github.com/jeremykamber/strata-memory
+
+## 1. What Strata Is & The Problem It Solves
+
+Strata is a CLI-first, stdlib-only tiered memory system for AI agents. It solves the problem that LLM memory is "flat" — current systems either cram everything into one ever-expanding context window, or dump everything into a vector database and hope the embedding model figures it out. Both approaches treat a memory from five minutes ago the same as a memory from five years ago.
+
+Core insight: separate the decision to move data from the act of compressing it. Algorithmic triggers (file mtime, last access date, access count) decide when to move data. No AI needed.
+
+## 2. Architecture: Three-Tier System
+
+**1st Stratum — Active (active/):** Working memory. Agent reads/writes markdown files directly. ~1ms latency. Auto-generated index.md lists every file.
+
+**2nd Stratum — Cooled (cooled/):** Janitor moves files here when they exceed decay threshold (14d projects, 60d entities, 7d GTD). Read-only via search. Bidirectional: accessed >=3 times → promoted back to active.
+
+**3rd Stratum — Archive (archive/ + shadow.db):** Evicted when not accessed for 90 days with <=1 access. Full content as JSON. Shadow Index (SQLite FTS5) keeps it keyword-searchable. Rehydration restores files.
+
+## 3. The Janitor (janitor.py)
+
+Only process that moves data between strata. Deterministic rules, zero LLM calls:
+- Migrate: 1st→2nd when file age >= decay threshold
+- Evict: 2nd→3rd when age >= lru_days AND access <= lru_min_access_count
+- Promote: 2nd→1st when access count >= 3
+- Rehydrate: 3rd→1st/2nd manual or auto on read
+- Full cycle order: Distill → Promote → Migrate → Evict
+
+## 4. Key Design Decisions
+
+- **Zero-dependency core:** pip install → go, no dependencies beyond stdlib
+- **Filesystem-first:** every memory is a plain markdown file
+- **Algorithmic Janitor:** lifecycle uses mtime + access count, not LLM
+- **LLM compression removed:** original blog had GPT-4o summarization, removed as overkill
+- **Multi-component path matching:** different decay rates for different content types
+- **JSON sidecar for access tracking:** not a database
+
+## 5. Pi Integration
+
+Extension hooks into agent lifecycle: before_agent_start injects Strata knowledge, agent_end saves transcripts. Optional background distillation. MCP server for Claude Code. Skill install for 55+ agent formats.
+
+## 6. Testing
+
+16 test files, 137+ tests, full suite under 2 seconds. Testing patterns: temp directories, mock subprocess, monkeypatch, synthetic logs.
+
+## 7. Git History
+
+~60+ commits over 3 months (Mar-Jun 2026). Initial build in 3 days. Major architecture pivot (removed Postgres). 22-task improvement wave with parallel review gates. v0.3.0b1 release.
