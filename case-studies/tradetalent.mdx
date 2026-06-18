@@ -7,50 +7,75 @@ stack: ["SQL", "Database Design", "ERD"]
 id: "tradetalent"
 ---
 
+![TradeTalent ERD Schema](/projects/tradetalent-schema.png)
+
+---
+
 ## Context
 
-TradeTalent was a student marketplace where people trade skills instead of money. You teach me React, I teach you graphic design. No currency changes hands — it's direct value exchange, governed entirely by trust and reputation.
+I worked as the database engineer on TradeTalent, a platform where students trade skills. Think of it as a barter economy for knowledge — "I'll teach you React if you teach me Graphic Design." The idea came from a real problem: students have skills they don't know are valuable, and they want to learn skills they can't afford to pay for.
 
-I designed the database architecture for this project. The focus was on data integrity, because in a trust-based marketplace, every inconsistency erodes confidence.
+My job was to design the relational database that would hold all of it together.
 
 ---
 
 ## Problem / Product Goal
 
-A skill marketplace is relational in a way that e-commerce isn't. When you buy a product with money, the transaction is simple: buyer pays, seller delivers, done. When you trade skills, you have a circular dependency. I have a skill you want. You have a skill I want. We need to propose a trade, negotiate terms, agree on a timeline, execute, and both confirm satisfaction. Each step has state. Each state transition must be valid. And the whole thing runs on trust — if the system loses track of who owes what, the marketplace collapses.
+TradeTalent isn't a simple marketplace. On Amazon, you buy a product with money. The transaction is straightforward — payment goes through, product ships, done. TradeTalent handles direct value exchange. No currency, no standardized pricing. Just two people agreeing that their skills are worth roughly the same thing.
 
-The goal was a database schema that enforced these rules at the storage layer. Not in application code, not in API middleware — in the database itself. Constraints as code.
+This creates two hard database problems:
+
+**The skill graph.** A user can have many skills, and a skill can be offered by many users. That's a many-to-many relationship, but it's not flat — skills can be nested (React is a subset of Frontend Development, which is a subset of Web Development), and the hierarchy matters for discovery.
+
+**The trade state machine.** Trades aren't a single event. They're proposed, negotiated, accepted, completed. Sometimes they're disputed. Sometimes one party drops out. Each state has different rules about what data can change, who can change it, and what cascading effects it triggers (reputation scores, skill endorsements, availability blocking).
+
+If either of these systems fails — if the skill graph returns bad results, or a trade transitions to an invalid state — the platform loses trust immediately.
 
 ---
 
 ## Thought Process
 
-I started by mapping the entity relationships. Users have many skills. Skills belong to many users. That's a standard many-to-many, straightforward. The tricky part was the trade lifecycle.
+I started with the obvious approach: handle business logic in the application layer. Let the API server enforce the rules, validate state transitions, manage the skill hierarchy. That's how most modern applications work, and for good reason — it's flexible and easy to change.
 
-A trade isn't a purchase. It has multiple states: proposed, negotiated, accepted, confirmed, completed, disputed. Each state has valid transitions — you can't go from "proposed" to "completed" without the intermediate steps. I needed to encode this state machine at the schema level so no application bug could create an invalid trade state.
+But I kept coming back to a concern: what happens when two API servers process a trade update at the same time? Or when a race condition lets a trade skip a required state? Application-level enforcement is vulnerable to concurrency bugs, and in a marketplace, those bugs mean real disputes.
 
-The skill graph was another challenge. If User A and User B both offer React tutoring, and User C asks for React, which one gets the referral? You can't just surface the first match — you need to consider reputation scores, availability, past trade history. The discovery view needed to join users with skills efficiently, even as the dataset grew. I optimized it with composite indexes and a materialized view that refreshed on trade completion.
+I realized the database needed to be an active participant in the business logic, not just a passive storage layer. If the schema itself enforced the rules — with constraints, triggers, and stored procedures — then no amount of application-level bugs could corrupt the data. The database becomes the source of truth in the truest sense.
 
-User reputation was the trust backbone. After each completed trade, both parties confirm. If both confirm, the system executes a stored procedure that updates reputation scores atomically. No timing window where a reputation update could be lost because an API call failed halfway through. The database handles the whole operation.
+This was the shift in thinking. Instead of "how do I model this data?", the question became "what invariants must never be violated?" The answers drove the schema design:
+
+- A user must never trade a skill with themselves.
+- A trade must follow a defined state machine — you can't go from "proposed" to "completed" without "accepted."
+- Reputation scores must be derived from completed trades, not manually set.
+- A skill offered in an active trade must be marked as unavailable for other trades.
+
+Every constraint, trigger, and stored procedure I wrote was an answer to one of those invariants.
 
 ---
 
 ## Solution
 
-A relational schema with the business logic embedded at the data layer.
+The database design for TradeTalent leans heavily into the relational model. Business rules are encoded in the schema itself.
 
-**SQL Constraints.** Prevented impossible states — a user can't trade with themselves, a trade can't skip from "proposed" to "completed", a skill can't be listed twice by the same user. These are database-level rules, not application-level checks.
+**Key schema decisions:**
 
-**Stored Procedures.** Reputation updates happen inside transactions, not in application code. When a trade completes with mutual confirmation, the procedure fires and updates both users' scores atomically. No partial updates. No lost writes.
+- **Complex SQL constraints** prevent invalid states at the database level. A `CHECK` constraint ensures a user can't propose a trade with themselves. A `UNIQUE` constraint on `(skill_id, user_id, status)` prevents double-booking a skill that's already in an active trade.
 
-**Optimized Views.** The discovery view — finding users who offer a skill you want — runs against a materialized view that pre-joins users, skills, and reputation scores. Fast enough to serve as the primary search interface, and it refreshes automatically when trades complete.
+- **Stored procedures** automate state transitions. Moving a trade from "proposed" to "accepted" isn't just an `UPDATE` statement — it triggers availability recalculations, notification insertions, and timeline events. Wrapping that in a procedure guarantees atomicity.
+
+- **Optimized views** serve the discovery layer. A "Skill Discovery View" joins users, skills, and availability into a single query-friendly structure. Even as the dataset grows, the frontend gets fast reads without complex application-level joins.
+
+- **The skill hierarchy** uses an adjacency list with recursive CTEs for traversal. Querying "all sub-skills of Frontend Development" is a single recursive query, not an application-level loop.
+
+**The result:** the API layer is thin. It validates inputs and handles auth, then delegates complex operations to the database. The data stays consistent even under concurrent access, because the invariants are baked into the schema.
 
 ---
 
 ## Takeaways
 
-**Database design is product design.** The schema defines what interactions are possible and which ones are prevented. If you get the ERD right, the API layer becomes a thin pass-through. If you get it wrong, you're patching logic in application code forever. I spent most of my time on the ERD, and it paid off — the frontend team rarely encountered data integrity bugs.
+**Database design is product design.** How your data relates determines how your users interact. If the skill graph is messy, discovery is broken. If the trade state machine is leaky, trust evaporates. The ORM-and-forget approach works for CRUD apps, but marketplaces demand schema-level rigor.
 
-**Constraints are documentation that runs.** Every self-trade prevention rule, every state machine transition guard served as documentation of how the system was supposed to work. New developers could look at the schema and understand the business rules without reading a spec document.
+**Constraints as code.** Every business rule I could encode in the schema saved me from a debugging session later. Application-level enforcement is necessary, but it's not sufficient. The database should never allow an invalid state, regardless of what the application does.
 
-**You can't fake integrity with good code.** The worst bugs I've seen in marketplace apps come from race conditions in application-level "transactional" logic. By pushing critical rules into the database itself, we eliminated a whole category of bugs before they could happen. It's not the most fashionable approach, but it's the one that works.
+**Recursive CTEs are underrated.** The skill hierarchy traversal is elegant and fast. Most developers reach for an application-level tree or a nested set model. Recursive CTEs are simpler, more maintainable, and just as performant for tree depths of 3-5 levels (which covers most skill hierarchies).
+
+**What I'd do differently:** I'd add more auditing upfront. The trade state machine would benefit from an event-sourced log of every state transition — who changed what, when, and from which state to which. The current design stores only the current state, which makes debugging race conditions harder than it needs to be.

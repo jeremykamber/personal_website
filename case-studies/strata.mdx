@@ -56,7 +56,7 @@ I removed the Postgres layer. Made Stratum 2 a filesystem directory. Changed the
 
 The Janitor went from "call an API and parse JSON" to "check a timestamp and maybe copy a file." The tests got faster. The install went from "pip install && docker-compose up" to "pip install && strata init." No dependencies, no ongoing costs, and the routine work runs without a single LLM call.
 
-Then I realized the Shadow Index — a simple SQLite FTS5 keyword index for archived files — was actually the killer feature. Every competing system either grows forever (mem0 keeps everything in the vector DB, costs go up linearly) or deletes permanently (old data is just gone). The Shadow Index stores only keywords, a 200-character preview, and a file path. A million entries cost less than a megabyte. When a search finds a match, the file gets rehydrated back to active automatically. You never truly lose anything — it just gets put away until you need it again.
+Then I realized the Shadow Index — a simple SQLite FTS5 keyword index for archived files — was the piece that made the whole thing work. Every competing system either grows forever (mem0 keeps everything in the vector DB, costs go up linearly) or deletes permanently (old data is just gone). The Shadow Index stores only keywords, a 200-character preview, and a file path. A million entries cost less than a megabyte. When a search finds a match, the file gets rehydrated back to active automatically. You never truly lose anything — it just gets put away until you need it again.
 
 ---
 

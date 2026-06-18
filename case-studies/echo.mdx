@@ -43,7 +43,7 @@ The design decision was just as important. Most productivity apps are cluttered 
 
 The architecture rests on two pillars.
 
-**Local LLM Inference via Ollama.** The journaling model runs on the user's machine. No cloud roundtrips, no data leaks, no API costs. It's slower than a cloud call, but for a journaling app where you're writing and reading at your own pace, the latency doesn't matter.
+**Local LLM Inference via Ollama.** The journaling model runs on the user's machine. There are no cloud roundtrips, no data leaks, and zero API costs. It's slower than a cloud call, but for a journaling app where you're writing and reading at your own pace, the latency doesn't matter.
 
 **Retrieval-Augmented Generation.** Write an entry → embed it locally → store the vector → on query, retrieve relevant past entries → feed them into the LLM for a context-aware reflection. The loop stays entirely inside the user's machine.
 

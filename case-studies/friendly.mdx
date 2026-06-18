@@ -7,46 +7,66 @@ stack: ["React Native", "MVVM", "Git"]
 id: "friendly"
 ---
 
+![Friend-ly Mobile UI](/projects/friendly-ui.png)
+
+---
+
 ## Context
 
-I worked on Friend-ly as a mobile engineer. The idea was simple: university students are surrounded by thousands of people but still feel isolated. The app was a mobile-first social network designed for campus life — study groups, events, messaging, the kind of connections that happen when you're in the same place but need a way to find each other.
+I was the mobile engineer on Friend-ly, a cross-platform social network for university students. The project came together in late 2024, driven by a simple observation: university campuses are full of people who feel lonely. You're surrounded by thousands of students, but finding your people — the ones who share your niche interests, your study habits, your late-night coffee addiction — is surprisingly hard.
+
+The app was built for students, by a team that understood that problem firsthand.
 
 ---
 
 ## Problem / Product Goal
 
-Building a social network for students means solving a contradiction. You need a lively, energetic product that makes connection feel effortless, but the underlying infrastructure has to be rock-solid. Real-time messaging, media feeds, instant notifications — one state sync failure and trust is gone.
+University is one of the most social environments you'll ever be in, and also one of the loneliest. The centralized social platforms (Facebook groups, WhatsApp chats, Discord servers) fragment conversation across a dozen tools. Finding a study group for your specific class, with people who match your study style, shouldn't require posting in three different group chats and hoping for the best.
 
-The product side was about reducing friction. How do you make forming a study group feel as natural as scrolling a feed? The engineering side was about one thing: keeping the app fast and consistent on any device, regardless of network conditions or content load.
+Friend-ly's goal was to bridge the gap between "being on campus" and "being part of the community." A single mobile app that handles real-time messaging, media feeds, event discovery, and group formation — tailored specifically to the student experience.
 
 ---
 
 ## Thought Process
 
-I chose React Native for the cross-platform reach. We needed both iOS and Android without maintaining two codebases, and React Native was mature enough by 2024 to deliver a native feel.
+Building a social network from scratch is a architecture problem, not a features problem. Anyone can slap together a chat view and a feed. Making it work at scale, across iOS and Android, with real-time updates and push notifications — that's the hard part.
 
-The architecture choice was MVVM — Model-View-ViewModel. The benefit is strict separation between business logic and UI. The ViewModels contain all the data-fetching and state logic; the Views are just components that render whatever the ViewModel tells them to. This matters for a few reasons.
+I chose React Native for cross-platform reach. The team couldn't afford to maintain two native codebases, and React Native was mature enough by 2024 to handle the complexity we needed. The tradeoff was performance — you have to be careful with React Native on complex list views and animations.
 
-First, testability. You can write tests against the ViewModel without spinning up a full UI environment. Logic tests run in milliseconds, and they catch the bugs that matter — wrong data flowing through the wrong path. Second, consistency. The same data-fetching pattern is used across the app, so you don't end up with three different ways to load a user feed. Third, separation of concerns. UI designers could work on View components without worrying about breaking API integration, and vice versa.
+The real architectural challenge was state management. Social apps are state machines on steroids. Someone sends a message, it appears in your chat. Someone posts to a feed, it appears in your timeline. Someone joins a study group, the member count updates. Every action cascades through multiple views, and if any of them gets out of sync, the user loses trust immediately.
 
-The design language was the fun part. We wanted energetic — bold colors, large readable typography, nothing shy about it. The vibe was meant to match campus life, not a corporate productivity tool. Making "find a study group for calc" feel engaging required some visual confidence.
+I'd seen too many React Native projects devolve into spaghetti code — state spread across components, data fetching logic mixed with UI rendering, every screen doing its own thing. I needed a structure that enforced discipline.
+
+That's why I chose MVVM (Model-View-ViewModel). It's not the trendiest architecture, but it solves the exact problem we had. The ViewModel layer holds all the business logic and state management, completely separate from the UI. The View layer (React components) just renders what the ViewModel tells it to. You can test the logic without spinning up a UI. You can swap out the UI without touching the logic. And multiple views can share the same ViewModel without duplicating code.
 
 ---
 
 ## Solution
 
-Cross-platform React Native app using MVVM architecture for state management and data flow.
+Friend-ly is a cross-platform social network for campus life, built with React Native and MVVM architecture.
 
-The ViewModels handled all business logic — fetching feeds, managing chat state, syncing notifications. The Views were purely presentational, observing ViewModel state and rendering accordingly. This kept the codebase organized as features grew, and it made debugging much easier: when something broke, it was either a logic error in the ViewModel or a rendering error in the View, and you knew which category to look in.
+**The architecture breaks into three layers:**
 
-The design system used bold accent colors, generous whitespace, and large typography. The goal was to make the app feel alive without being overwhelming.
+- **Model:** Data layer — user profiles, messages, posts, group memberships, event metadata. All the entities that make up the social graph.
+- **ViewModel:** Business logic layer — data fetching, state management, real-time sync, push notification handling. This is where the complexity lives, and it's fully testable without a UI.
+- **View:** React Native components — screens, lists, modals, navigation. Pure rendering, minimal logic.
+
+**Key features:**
+
+- Real-time messaging with typing indicators and read receipts
+- Media feeds with image uploads and like/comment interactions
+- Study group discovery and formation
+- Event creation and RSVPs
+- Push notifications for all the social triggers
+
+**The design language** uses bold colors and large, readable typography — energetic, student-friendly. The goal was to make "finding a study group" feel as engaging as scrolling through a curated feed.
 
 ---
 
 ## Takeaways
 
-**Predictable state management is everything in a real-time app.** If your state is out of sync — a message shows delivered but wasn't, a feed shows stale content — the user notices immediately and trust drops. MVVM helped with this because state mutations followed a single, traceable path through the ViewModel. No random state updates scattered across components.
+**MVVM was the right call.** It kept the codebase maintainable as the feature set grew. I could test data-fetching logic without a simulator. Designers could tweak UI components without fear of breaking API integration. The upfront investment in architecture paid for itself within the first few feature additions.
 
-**Cross-platform still has sharp edges.** React Native handled 90% of what we needed, but the last 10% — performance on low-end Android devices, camera integration, push notification reliability — required native modules and platform-specific code. Plan for that margin.
+**State management is the hardest problem in social apps.** Not the chat, not the feed — the state. Every mutation cascades. React Native doesn't make this easy. I'd invest even more in predictable state patterns next time — possibly a dedicated state machine library for complex flows like group formation or event RSVPs.
 
-**Social apps live and die on first impression.** We put serious effort into the onboarding flow and the first feed render. If the app felt slow or empty in the first 30 seconds, users rarely came back. Everything else was secondary.
+**Cross-platform tradeoffs are real.** React Native saved us months of development time, but we hit performance walls on complex animations and large lists. Some of those were fixable with native modules. Some were fundamental React Native limitations we had to design around. Knowing which is which comes from experience, and I have a better intuition now.

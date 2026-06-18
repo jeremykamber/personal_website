@@ -46,7 +46,7 @@ I implemented all of them. It still wasn't enough.
 
 **The breakthrough came from an unexpected direction: the r &lt; 0.26 ceiling.**
 
-I was working on an interview-to-persona pipeline — the idea that you could upload raw interview transcripts and Kynd would generate personas from them. My naive approach was to extract personality traits (Big Five OCEAN scores) from the transcripts using zero-shot LLM extraction. But research by Zhu et al. (2025) showed this maxes at r &lt; 0.26 correlation with actual personality scores. You literally cannot extract reliable personality traits from interview transcripts. It's not a prompt-engineering problem — it's a fundamental ceiling.
+I was working on an interview-to-persona pipeline — the idea that you could upload raw interview transcripts and Kynd would generate personas from them. My naive approach was to extract personality traits (Big Five OCEAN scores) from the transcripts using zero-shot LLM extraction. But research by Zhu et al. (2025) showed this maxes at r &lt; 0.26 correlation with actual personality scores. You literally cannot extract reliable personality traits from interview transcripts. This is a fundamental ceiling, not something you can fix with prompt engineering.
 
 This changed my entire approach. Instead of extracting personality, I extracted only *directly observable signals* — pain points, goals, values with verbatim quotes. Things an interviewer would actually note down. Then I pooled those signals across all interviews, deduplicated by trigram similarity, and used the resulting frequency distribution to *generate* personality consistent with those signals.
 
