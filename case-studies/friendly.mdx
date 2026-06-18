@@ -7,30 +7,46 @@ stack: ["React Native", "MVVM", "Git"]
 id: "friendly"
 ---
 
-![Friend-ly Mobile UI](/projects/friendly-ui.png)
+## Context
 
-University can be a lonely place, despite being surrounded by thousands of people. 
+I worked on Friend-ly as a mobile engineer. The idea was simple: university students are surrounded by thousands of people but still feel isolated. The app was a mobile-first social network designed for campus life — study groups, events, messaging, the kind of connections that happen when you're in the same place but need a way to find each other.
 
-**Friend-ly** was built to bridge the gap between "being on campus" and "being part of the community." It's a mobile-first social network designed specifically for the unique needs of students.
+---
 
-## The Goal: High Fidelity, High Performance
+## Problem / Product Goal
 
-Building a social network means handling real-time data, complex media feeds, and instant messaging. As the Mobile Engineer on this project, my focus was on creating an experience that felt "native" and responsive, regardless of the device.
+Building a social network for students means solving a contradiction. You need a lively, energetic product that makes connection feel effortless, but the underlying infrastructure has to be rock-solid. Real-time messaging, media feeds, instant notifications — one state sync failure and trust is gone.
 
-## The Architecture: MVVM for Scalability
+The product side was about reducing friction. How do you make forming a study group feel as natural as scrolling a feed? The engineering side was about one thing: keeping the app fast and consistent on any device, regardless of network conditions or content load.
 
-We chose **React Native** for the cross-platform reach, but we didn't want the "spaghetti code" that often comes with Rapid Application Development.
+---
 
-I architected the app using the **MVVM (Model-View-ViewModel)** pattern. By strictly separating the business logic (ViewModels) from the UI (Views), we achieved:
+## Thought Process
 
-* **Testability**: We could test our logic without spinning up a full UI environment.
-* **Consistency**: The same data-fetching logic could be used across different parts of the app.
-* **Separation of Concerns**: UI designers could work on the `View` components without fear of breaking the underlying API integration.
+I chose React Native for the cross-platform reach. We needed both iOS and Android without maintaining two codebases, and React Native was mature enough by 2024 to deliver a native feel.
 
-## Design Aesthetics: Vibrant & Accessible
+The architecture choice was MVVM — Model-View-ViewModel. The benefit is strict separation between business logic and UI. The ViewModels contain all the data-fetching and state logic; the Views are just components that render whatever the ViewModel tells them to. This matters for a few reasons.
 
-The design language of Friend-ly is energetic. We used bold colors and large, readable typography to match the student vibe. The goal was to make "finding a study group" feel as engaging as scrolling through a curated feed.
+First, testability. You can write tests against the ViewModel without spinning up a full UI environment. Logic tests run in milliseconds, and they catch the bugs that matter — wrong data flowing through the wrong path. Second, consistency. The same data-fetching pattern is used across the app, so you don't end up with three different ways to load a user feed. Third, separation of concerns. UI designers could work on View components without worrying about breaking API integration, and vice versa.
 
-## Reflections
+The design language was the fun part. We wanted energetic — bold colors, large readable typography, nothing shy about it. The vibe was meant to match campus life, not a corporate productivity tool. Making "find a study group for calc" feel engaging required some visual confidence.
 
-Friend-ly taught me the importance of **predictable state management**. In a real-time social app, if your state is out of sync, the user loses trust immediately. This project was a deep dive into building systems that are as sturdy as they are beautiful. 
+---
+
+## Solution
+
+Cross-platform React Native app using MVVM architecture for state management and data flow.
+
+The ViewModels handled all business logic — fetching feeds, managing chat state, syncing notifications. The Views were purely presentational, observing ViewModel state and rendering accordingly. This kept the codebase organized as features grew, and it made debugging much easier: when something broke, it was either a logic error in the ViewModel or a rendering error in the View, and you knew which category to look in.
+
+The design system used bold accent colors, generous whitespace, and large typography. The goal was to make the app feel alive without being overwhelming.
+
+---
+
+## Takeaways
+
+**Predictable state management is everything in a real-time app.** If your state is out of sync — a message shows delivered but wasn't, a feed shows stale content — the user notices immediately and trust drops. MVVM helped with this because state mutations followed a single, traceable path through the ViewModel. No random state updates scattered across components.
+
+**Cross-platform still has sharp edges.** React Native handled 90% of what we needed, but the last 10% — performance on low-end Android devices, camera integration, push notification reliability — required native modules and platform-specific code. Plan for that margin.
+
+**Social apps live and die on first impression.** We put serious effort into the onboarding flow and the first feed render. If the app felt slow or empty in the first 30 seconds, users rarely came back. Everything else was secondary.

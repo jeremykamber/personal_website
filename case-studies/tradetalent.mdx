@@ -7,30 +7,50 @@ stack: ["SQL", "Database Design", "ERD"]
 id: "tradetalent"
 ---
 
-![TradeTalent ERD Schema](/projects/tradetalent-schema.png)
+## Context
 
-When building a marketplace, the database isn't just a place to store data. It's the source of truth for every interaction, every promise, and every trade. 
+TradeTalent was a student marketplace where people trade skills instead of money. You teach me React, I teach you graphic design. No currency changes hands — it's direct value exchange, governed entirely by trust and reputation.
 
-For **TradeTalent**, a platform where students trade skills (e.g., "I'll teach you React if you teach me Graphic Design"), the complexity lies in the circular nature of the transactions.
+I designed the database architecture for this project. The focus was on data integrity, because in a trust-based marketplace, every inconsistency erodes confidence.
 
-## The Challenge: Relational Complexity
+---
 
-Unlike a standard e-commerce site where you buy a product with currency, TradeTalent handles direct value exchange. This results in a few unique architectural hurdles:
+## Problem / Product Goal
 
-1. **The Skill Graph**: A user can have many skills, and a skill can be offered by many users.
-2. **The Trade State Machine**: Trades aren't just "bought." They are proposed, negotiated, accepted, and then (hopefully) completed. Managing these states while ensuring data integrity is paramount.
+A skill marketplace is relational in a way that e-commerce isn't. When you buy a product with money, the transaction is simple: buyer pays, seller delivers, done. When you trade skills, you have a circular dependency. I have a skill you want. You have a skill I want. We need to propose a trade, negotiate terms, agree on a timeline, execute, and both confirm satisfaction. Each step has state. Each state transition must be valid. And the whole thing runs on trust — if the system loses track of who owes what, the marketplace collapses.
 
-## The Architecture: Constraints as Code
+The goal was a database schema that enforced these rules at the storage layer. Not in application code, not in API middleware — in the database itself. Constraints as code.
 
-I approached this by leaning heavily into the relational model. Instead of handling business logic entirely in the application layer, I embedded it into the database schema itself.
+---
 
-### Key Implementations:
-* **Complex SQL Constraints**: Ensuring a user can't trade a skill with themselves.
-* **Stored Procedures**: Automating the updates of user reputations after a successful trade.
-* **Optimized Views**: Creating a "Discovery View" that joins users and skills with high performance, even as the dataset grows.
+## Thought Process
 
-## Why it Matters
+I started by mapping the entity relationships. Users have many skills. Skills belong to many users. That's a standard many-to-many, straightforward. The tricky part was the trade lifecycle.
 
-In my opinion, good software starts with a good mental model of the data. By spending the time to get the ERD right, we made the frontend development significantly easier. The API didn't have to "guess" or perform messy joins in memory; it just asked the database for exactly what it needed.
+A trade isn't a purchase. It has multiple states: proposed, negotiated, accepted, confirmed, completed, disputed. Each state has valid transitions — you can't go from "proposed" to "completed" without the intermediate steps. I needed to encode this state machine at the schema level so no application bug could create an invalid trade state.
 
-This project reinforced my belief that **Database Design is Product Design.** If you don't understand how your data relates, you don't understand how your users interact. 
+The skill graph was another challenge. If User A and User B both offer React tutoring, and User C asks for React, which one gets the referral? You can't just surface the first match — you need to consider reputation scores, availability, past trade history. The discovery view needed to join users with skills efficiently, even as the dataset grew. I optimized it with composite indexes and a materialized view that refreshed on trade completion.
+
+User reputation was the trust backbone. After each completed trade, both parties confirm. If both confirm, the system executes a stored procedure that updates reputation scores atomically. No timing window where a reputation update could be lost because an API call failed halfway through. The database handles the whole operation.
+
+---
+
+## Solution
+
+A relational schema with the business logic embedded at the data layer.
+
+**SQL Constraints.** Prevented impossible states — a user can't trade with themselves, a trade can't skip from "proposed" to "completed", a skill can't be listed twice by the same user. These are database-level rules, not application-level checks.
+
+**Stored Procedures.** Reputation updates happen inside transactions, not in application code. When a trade completes with mutual confirmation, the procedure fires and updates both users' scores atomically. No partial updates. No lost writes.
+
+**Optimized Views.** The discovery view — finding users who offer a skill you want — runs against a materialized view that pre-joins users, skills, and reputation scores. Fast enough to serve as the primary search interface, and it refreshes automatically when trades complete.
+
+---
+
+## Takeaways
+
+**Database design is product design.** The schema defines what interactions are possible and which ones are prevented. If you get the ERD right, the API layer becomes a thin pass-through. If you get it wrong, you're patching logic in application code forever. I spent most of my time on the ERD, and it paid off — the frontend team rarely encountered data integrity bugs.
+
+**Constraints are documentation that runs.** Every self-trade prevention rule, every state machine transition guard served as documentation of how the system was supposed to work. New developers could look at the schema and understand the business rules without reading a spec document.
+
+**You can't fake integrity with good code.** The worst bugs I've seen in marketplace apps come from race conditions in application-level "transactional" logic. By pushing critical rules into the database itself, we eliminated a whole category of bugs before they could happen. It's not the most fashionable approach, but it's the one that works.

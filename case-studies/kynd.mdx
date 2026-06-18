@@ -13,11 +13,11 @@ id: "kynd"
 
 ## Context
 
-Kynd started as DeepBound — a project I began in early 2026 after reading a UC Berkeley paper on "deep binding of LLM virtual personas" (Moon, Kang et al., 2024). The paper showed that LLMs could produce dramatically more realistic human behavior when given rich narrative backstories instead of simple demographic prompts.
+Kynd started as DeepBound, a project I began in early 2026. The trigger was a UC Berkeley paper on "deep binding of LLM virtual personas" (Moon, Kang et al., 2024). The paper showed that LLMs produce much more realistic human behavior when you give them rich narrative backstories instead of simple demographic prompts.
 
-At the time, I was frustrated with how every "AI persona" tool on the market was basically a chatbot with a character description slapped in the system prompt. They didn't produce realistic user testing feedback. They produced stereotypes.
+At the time, every "AI persona" tool on the market was a chatbot with a character description slapped in the system prompt. They didn't simulate test users. They produced stereotypes.
 
-I'm the sole developer and product lead on this project.
+I'm the sole developer and product lead.
 
 ---
 
@@ -99,7 +99,7 @@ Tiered LLM selection: DeepSeek V4 Flash (text generation, reasoning, extraction)
 
 **Streaming is wrong for structured data analysis.** Streaming is great for chat. It's terrible for validated, aggregated, dashboard-ready analysis. The completion-based overhaul was painful but necessary. I should have started there instead of chasing the streaming UX dopamine hit.
 
-**No single technique is a magic bullet.** Each inference-time technique contributes a few percentage points. The magic is in the layering — compartmentalized prompts alone aren't enough, PB&J alone isn't enough, anchors alone aren't enough. The system is the combination. I almost shipped with just narrative backstories and would have had a mediocre product.
+**No single technique carries the whole load.** Each inference-time technique contributes a few percentage points. The magic is in the layering — compartmentalized prompts alone aren't enough, PB&J alone isn't enough, anchors alone aren't enough. The system is the combination. I almost shipped with just narrative backstories, and the product would have been mediocre.
 
 **The GitHub repo is still `jeremykamber/deepbound`** for backward compatibility. The product name is Kynd. I should rename it but haven't prioritized that over feature work.
 

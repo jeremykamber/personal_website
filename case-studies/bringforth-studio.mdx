@@ -7,47 +7,54 @@ stack: ["Python", "FastAPI", "Docker", "Ubuntu"]
 id: "bringforth"
 ---
 
-If you’ve ever tried to scale an agency or a B2B startup, you know the drill. You start with a massive list of domains, and then the "grind" begins. 
+## Context
 
-You spend hours clicking through half-broken About pages, trying to figure out if a company actually fits your ICP (Ideal Customer Profile) or if they just happen to use the right keywords in their meta tags. It’s tedious, it’s prone to human error, and frankly, it’s a waste of high-level talent. 
+I founded Bringforth Studio to solve a problem I kept hitting in B2B sales. You'd get a list of domains and then the real work started: clicking through half-broken About pages, looking for signs that a company fit your ICP. Hours of it. Days of it. Smart people doing the work a slow, expensive scraper could do.
 
-I founded **Bringforth Studio** because I realized that manual prospecting is one of the biggest bottlenecks in the sales cycle. We’re essentially asking smart people to act like slow, expensive scrapers. 
-
-The goal was simple: transform raw, noisy domain lists into high-intent leads using automated intelligence (without losing the "human" nuance that actually closes deals).
+I was the founder and product manager on this project. We built it for our own agency and eventually for clients.
 
 ---
 
-## The Technical Stack
+## Problem / Product Goal
 
-When we built the engine for Bringforth, I wanted to move away from "clever prompt engineering" and toward a robust, systems-level architecture. We didn't just want to find leads; we wanted to *understand* them.
+Manual prospecting is the biggest bottleneck in the sales cycle. You're asking talented people to act like robots, and robots would be better at it.
 
-### 1. High-Performance Backend (Python & FastAPI)
-We built the core on **Python and FastAPI**. When you’re dealing with massive request volumes and trying to orchestrate multiple LLM calls alongside web scraping, you need a backend that’s asynchronous and scalable. FastAPI handles the concurrency beautifully, allowing us to process lists that would take a human weeks in just a few minutes.
+The core tension was simple: you need high-intent leads, but finding them requires understanding nuance. Does this company actually have the problem we solve? Do they have the budget? Or do they just happen to use the right keywords on their website? A human can answer those questions, but after the 400th site, they start missing details. An AI doesn't blink, but most automation tools are too dumb to look past surface-level signals.
 
-### 2. Dockerized Headless Browsing
-Modern websites are a mess of JavaScript, pop-ups, and bot detection. Standard BeautifulSoup-style scraping doesn't cut it anymore. We use **Dockerized headless browsers** to render pages fully. This allows us to extract clean, structured data from even the most complex SPAs (Single Page Applications) while bypassing the standard "anti-bot" friction that usually halts automation.
-
-### 3. LLM-Based Qualification
-This is where the real "thinking" happens. Most tools use rigid keyword matching (e.g., "Does the site contain the word 'SaaS'?"). 
-
-We’ve moved the qualification layer into the LLM itself. Instead of looking for strings, the AI "reads" the content to judge subjective criteria. It asks: *“Based on their service offerings and case studies, does this company actually have the budget and pain points for our specific solution?”* It’s the difference between a bot searching for text and a junior analyst performing cause-and-effect analysis on a business model.
+The goal was to take raw, noisy domain lists and turn them into qualified leads automatically — without losing the human judgment that makes outreach effective.
 
 ---
 
-## Impact and Results: Relocating the "Human" Element
+## Thought Process
 
-The shift from manual labor to an automated scraping and qualification layer has fundamentally changed how we (and our clients) operate.
+I started with something simple: scrape websites, pull the text, and run keyword matching. It worked for the obvious cases — if the word "SaaS" appeared, flag it. But it was useless for anything nuanced. A company could be a perfect fit and never mention the right keywords. A company could mention them and be totally wrong.
 
-*   **70% Reduction in Manual Work:** We’ve seen tasks that used to occupy an entire 8-hour workday shrink down to a **15-minute human review**. The "heavy lifting" is gone; the human just provides the final "yes/no" or high-level strategic oversight.
-*   **Superior Accuracy:** Humans get tired. After the 400th website, a person starts missing the subtle details (the tiny mention of a specific tech stack or a niche service line). The AI doesn't blink; it identifies those nuances with a level of consistency that's hard to match manually
-*   **Personalization at Scale:** Because our scrapers gather "deep" business insights (not just a name and an email), the outreach becomes significantly more effective. We aren't sending generic templates; we're using the gathered intelligence to maintain a human feel at a scale that was previously impossible.
+So I moved to LLM-based qualification. Instead of looking for strings, I'd feed the full page content into an LLM and ask it to make a judgment call. Does this company's service offerings align with our solution? Do their case studies suggest they have the budget? It worked way better than keyword matching, but it introduced a new problem: you can't judge a business by its meta description. You need the whole picture — service pages, about page, case studies, tech stack mentions.
+
+That meant I needed proper browser rendering. Most modern sites are JavaScript-heavy messes. BeautifulSoup-style HTTP scraping returns nothing but a loading spinner. So I containerized headless browsers with Docker. Each site gets a full page render — JavaScript, pop-ups, bot detection all handled before we extract the content.
+
+The pipeline became: domain list → Dockerized browser renders each site → structured extraction → LLM qualification → scored lead list. The human only comes in at the end for a final review.
 
 ---
 
-## The Bottom Line
+## Solution
 
-I often think about software architecture in terms of **Hexagonal Architecture**: defining your use cases clearly and letting the "adapters" (the LLMs, the scrapers, the databases) handle the implementation. 
+Three layers, each solving a specific bottleneck.
 
-At Bringforth Studio, our "use case" is building relationships. Everything else (the sorting, the clicking, the data entry) is just an infrastructure problem that AI is now uniquely qualified to solve. 
+**High-Performance Backend (Python + FastAPI).** Processing thousands of domains means orchestrating hundreds of LLM calls alongside browser automation. FastAPI's async model handles the concurrency well. A list that would take a human weeks gets processed in minutes.
 
-By automating the "information gathering" phase, we’re letting sales teams get back to what they’re actually good at: high-level strategy and building genuine human connections. 
+**Dockerized Headless Browsing.** Each target site gets a full browser render inside a container. Handles the JavaScript, the pop-ups, the anti-bot friction. What comes out is clean, structured page content — not a loading spinner or a "we detected automation" wall.
+
+**LLM-Based Qualification.** The qualification layer reads the extracted content holistically. It's not checking for keywords. It's asking: does this company have the budget? Do they have the pain points? Are they a good fit? The difference between a regex search and a junior analyst doing business analysis.
+
+The human's job shrinks from "click through every site and decide" to "review the scored list and give the final yes or no."
+
+---
+
+## Takeaways
+
+**70% reduction in manual work** is the headline number, but the real win was different. An 8-hour workday of prospecting condensed to a 15-minute review. That changes how you think about your pipeline. You can test messaging against larger lists, explore adjacent markets, run experiments that wouldn't be worth the time manually.
+
+**AI doesn't replace judgment, it extends attention.** The system doesn't make the final call — it pre-qualifies so a human can apply their judgment where it matters most. The mistake would have been trying to automate the whole thing end-to-end. Keeping the human in the loop was the right call.
+
+**Architecture mirrors use case.** The whole system was structured around a simple idea: the use case is building relationships. Everything else — scraping, sorting, data entry — is infrastructure. When you start from the use case instead of the technology, the architecture practically designs itself.

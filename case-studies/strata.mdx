@@ -13,9 +13,9 @@ id: "strata"
 
 ## Context
 
-I started building Strata as a solo project in March 2026, after months of frustration with every AI coding agent I used. Every session started blank. Context I'd built up over hours of conversation was gone the next day. The agent couldn't remember decisions we'd made, bugs we'd fixed, or architecture patterns we'd established. It was like Groundhog Day for every coding session.
+Strata started in March 2026, born from a specific pain point: every AI coding agent I used started each session blank. Context from hours of conversation was gone by the next day. Decisions we'd made, bugs we'd fixed, architecture patterns we'd established — it all evaporated. Groundhog Day, but for coding.
 
-I was the user, the developer, and the product manager.
+I was the user, the developer, and the product manager rolled into one.
 
 ---
 
@@ -23,11 +23,11 @@ I was the user, the developer, and the product manager.
 
 The problem was simple and maddening: **AI agents have no persistent memory.**
 
-The existing solutions were all wrong in different ways:
+The existing approaches all had the same flaw: they tried to be smart all the time.
 
-- **Infinite context windows** — shove everything into the prompt. Degrades reasoning, burns tokens exponentially.
-- **Vector databases** — dump everything into embeddings and hope the similarity search surfaces what matters. Works for facts, fails for nuanced context.
-- **mem0, LangMem, OpenClaw** — Use LLMs to constantly monitor and reorganize memory. Every query triggers a check, every operation runs an LLM janitor loop. Works in demos, costs a fortune at scale.
+- **Infinite context windows** shove everything into the prompt. Reasoning degrades, tokens burn.
+- **Vector databases** dump everything into embeddings and hope the similarity search surfaces what matters. Works for facts, fails for nuance.
+- **mem0, LangMem, OpenClaw** use LLMs to constantly monitor and reorganize memory. Every query triggers a check, every operation runs a janitor loop. Great in demos, costly at scale.
 
 I wanted something that would let an agent remember last week's architecture decision without paying GPT-4o to read a 10KB file and decide whether it was still relevant. The goal was: **a memory system that costs nothing for routine operations, only spending money when intelligence is actually required.**
 
@@ -48,15 +48,15 @@ The Postgres layer was going to add:
 
 I sat with this for two days. I had built a perfectly good three-tier system, but Stratum 2 was a third-party dependency that made the whole thing less useful, not more.
 
-**The "aha" moment came when I asked myself: what does the Janitor actually need?**
+**The breakthrough came when I asked myself: what does the Janitor actually need?**
 
-It doesn't need to be smart. It needs to check a timestamp, compare it to a threshold, and maybe copy a file from one directory to another. That's it. The LLM in the lifecycle loop was cargo-cult intelligence — I was adding smarts where reliability would do.
+Check a timestamp. Compare it to a threshold. Maybe copy a file from one directory to another. That's the whole job. The LLM in the lifecycle loop was cargo-cult intelligence — I was adding smarts where reliability would do.
 
 I removed the Postgres layer. Made Stratum 2 a filesystem directory. Changed the eviction trigger from "LLM decides this is stale" to "file hasn't been accessed in 90 days." Cut the entire embedding pipeline.
 
-The Janitor went from "call an API and parse JSON" to "check a timestamp and maybe copy a file." The tests got faster. The install went from "pip install && docker-compose up" to "pip install && strata init." Zero dependencies. Zero ongoing cost. Zero LLM calls for routine operation.
+The Janitor went from "call an API and parse JSON" to "check a timestamp and maybe copy a file." The tests got faster. The install went from "pip install && docker-compose up" to "pip install && strata init." No dependencies, no ongoing costs, and the routine work runs without a single LLM call.
 
-Then I realized the Shadow Index — a simple SQLite FTS5 keyword index for archived files — was actually the killer feature. Every competing system either grows forever (mem0 keeps everything in the vector DB, costs increase linearly) or deletes permanently (old data is just gone). The Shadow Index stores only keywords + a 200-char preview + a file path. A million entries cost less than a megabyte. When a search finds a match, the file gets rehydrated back to active automatically. You never truly lose anything — it just gets put away until you need it again.
+Then I realized the Shadow Index — a simple SQLite FTS5 keyword index for archived files — was actually the killer feature. Every competing system either grows forever (mem0 keeps everything in the vector DB, costs go up linearly) or deletes permanently (old data is just gone). The Shadow Index stores only keywords, a 200-character preview, and a file path. A million entries cost less than a megabyte. When a search finds a match, the file gets rehydrated back to active automatically. You never truly lose anything — it just gets put away until you need it again.
 
 ---
 
@@ -88,9 +88,9 @@ A pi extension hook saves every conversation transcript automatically. An option
 
 ## Takeaways
 
-**The Janitor doesn't need to be smart.** This was the single most important decision in the project. I almost built a system where every lifecycle operation required an LLM call. Removing that dependency made the system simpler, faster, cheaper, and more reliable. The lesson: face-value obvious complexity (filesystem operations are simple) was better than obviously-face-value simplicity (wrapping everything in an LLM prompt).
+**The Janitor doesn't need to be smart.** This was the single most important decision in the project. I almost built a system where every lifecycle operation required an LLM call. Removing that dependency made the system simpler, faster, cheaper, and more reliable. The lesson was straightforward: filesystem operations are simple, and that's a feature, not a limitation.
 
-**The Shadow Index was an afterthought that became the killer feature.** I added it for completeness. It's the one thing that competitors (mem0, QMD, OpenClaw) don't replicate — they either grow forever or delete permanently. Sometimes the most important features emerge from what you do on the side, not what you plan.
+**The Shadow Index was an afterthought that made the whole thing special.** I added it for completeness. Competitors (mem0, QMD, OpenClaw) can't replicate it — they either grow forever or delete permanently. Sometimes the features that matter most come from what you build on the side, not what you planned.
 
 **Path matching is harder than it looks.** The config system needs to apply different decay rates for different content types — "pi/conversations" should decay faster than "pi/entities." Getting the multi-component path prefix matching right (with edge cases like "pi/conversations/longer/path" correctly matching "pi/conversations") took three attempts. The solution was checking progressively longer path prefixes in a loop — simple, correct, testable.
 
