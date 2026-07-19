@@ -1,77 +1,121 @@
 ---
-title: "Pitting Two AI Agents Against Each Other"
+title: "The Best Use of AI Coding Agents Isn't Writing Code"
 date: "2026-07-19"
 description: "A technique for getting two AI models to debate your architecture while you sit in the middle and make the calls that actually matter."
 ---
 
-I code with AI agents every day. 
+I code with AI agents every day. Most people assume that means I'm letting autocomplete do the typing. In reality, I spend most of that time arguing with the models about architecture.
 
-Not in the "accept all suggestions" way. In the "we argue about architecture for an hour" way.
+That's where the actual leverage is.
 
-There's a technique I landed on (thanks Ryan!!) that changed how I work. It's simple to explain but has a lot of nuance behind it.
+The common story about AI coding agents is that they make you faster at writing code. That's true as far as it goes, but software was never really about typing speed. The hard part has always been deciding what to build, how to structure it, and which trade-offs to accept.
 
-The core idea is this: I take the output from my coding agent, paste it into a completely separate AI conversation, and ask it for a second opinion. Then I feed that opinion back. Then they go back and forth. And -- key to all of this -- I constantly push back, question the AI agent(s), and make the important architectural decisions.
+You can have the most performant implementation in the world and still have wasted your time if you optimized for the wrong thing in the first place.
 
-## Why This Works
+The question worth asking is how much of our time goes toward low-leverage execution versus high-leverage reasoning. AI keeps getting better at the execution side. That frees us up (if we let it) to spend more energy on the decisions.
 
-An AI coding agent isn't great at creating novel ideas from scratch. It's *really* good at evaluating what's already there. That feels a bit pedantic, but the distinction actually matters quite a bit.
+There's a technique I landed on (thanks Ryan!) that reshaped how I work in that second category. It's straightforward: I get two AI models to critique each other's thinking, and use those two differing perspectives to help me make a decision.
 
-When my agent generates a design or a plan, I don't just accept it. I copy the whole response, open up a different model — ChatGPT in my case, but it could be anything — and I paste it in. That second model doesn't have the context of the entire conversation. It doesn't have the back-and-forth that led to this point. What it has is a fresh perspective and whatever engineering instincts are baked into that model.
+This isn't about two AIs being smarter than one. You can't outsource decision-making to the models. 
 
-And here's what usually happens: the second model catches things the first one missed. Or it disagrees with a choice. Or it reframes something in a way that makes the trade-offs clearer. Or, sometimes, it'll offer a new perspective that I hadn't even considered (when that happens and you have that "wow" moment, it's so cool!)
+What you _can_ do is use LLMs to make high-quality disagreement nearly free. 
 
-For example, I was building a feature that needed authentication. My coding agent suggested three options: full email/password auth, magic links, or optional auth where users could stay local but optionally create an account. The agent had a leaning, but it was pretty measured about it.
+One engineer proposes an architecture --> Another engineer finds the holes --> Someone notices a constraint nobody considered --> The design improves. 
 
-I pasted all of that into ChatGPT and asked it to think like a senior engineer. Within a paragraph, it pushed back on optional auth hard. The sync between local and cloud state was essentially a product in and of itself — handling conflicts, merging data, keeping things in order. OAuth with Google was way simpler. One step, users expect it, done.
+AI just makes that loop easier, faster, and more accessible.
 
-That's the kind of call that's hard to make when you're deep in the weeds with one model that's already committed to a direction. Fresh eyes, even artificial ones, see it differently.
+---
+
+## The Process
+
+When my coding agent generates a design or implementation plan, I don't take it at face value. I copy the proposal, open a separate AI conversation, and ask for a second opinion.
+
+Something like:
+
+> Think like a senior engineer reviewing this architecture. What assumptions are being made? What trade-offs are missing? What would you challenge if this came through a design review?
+
+The second model has no conversational history. It didn't see the hour of exploration that led to the proposal. It just sees the output.
+
+That gap matters. Conversations build momentum. Once an agent has spent time going down one path, both you and the model find it easier to keep optimizing along that same path rather than stepping back to ask whether the path itself makes sense.
+
+A fresh perspective is far more likely to pause and ask, "Wait, why are we solving it this way?" And that question can surface a bug, a bad abstraction, or sometimes an entirely different framing of the problem.
+
+---
+
+## A Real Example
+
+I was building a feature that needed authentication. My coding agent laid out three options: full email/password, magic links, or optional auth where users could stay local but optionally create an account.
+
+All reasonable choices. The agent had a lean, but it was careful about the trade-offs.
+
+I pasted the proposal into ChatGPT and asked it to review the architecture. Within a paragraph, it pushed back hard on optional auth. The problem wasn't the idea itself — it was the hidden complexity. If users can have local state and cloud state, you now need to solve conflicts, merging, ordering, offline behavior, recovery flows, and edge cases.
+
+That's not an auth feature. That's an entire product.
+
+OAuth with Google was suddenly the obvious answer. The flow is familiar, users already understand it, and the complexity largely disappears.
+
+That's exactly the kind of decision that's hard to make when you're deep inside a conversation with one model that's already committed time to exploring a direction. Fresh eyes help, even artificial ones.
+
+---
 
 ## The Ping-Pong Loop
 
-So now I take ChatGPT's analysis — the pushback on optional auth, the OAuth recommendation, the reasoning — and I paste it back into my coding agent. I literally say something like "I sent this to an AI for analysis, thoughts?"
+Once I have the second opinion, I bring it back to the coding agent. I literally say something like, "I sent this to another engineer for feedback. Here's their analysis. Thoughts?"
 
-> Even better from a prompting perspective would be something like "I sent this to a peer at my company / to my co-founder for feedback, pasted his analysis below- thoughts?" This way it treats the analysis with human weight.
+The agent doesn't just accept it. It pushes back on parts, agrees with others, and flags where the second analysis might be missing context. That's exactly what I want.
 
-The agent reads the other model's analysis and does something interesting. It engages with it. It says which parts it agrees with, which parts it pushes back on. It treats the other AI's output like a peer review, not a command.
+Most people accidentally train their AI to be agreeable. They ask questions in ways that produce the answers they already expect. I have anti-sycophancy rules in my agent.md precisely because a model that always says "great idea" is useless. The point is better decisions, not compliance.
 
-And then the loop continues. Maybe I have a concern that neither model raised. In my case, I realized I needed simulations to process asynchronously in the background, without the user's browser session open. That came from me. Neither AI suggested it. I pasted my concern into the ChatGPT conversation, it analyzed the implications, added details about job statuses and processing flow, and I fed *that* back to the coding agent.
+During one of these loops, my agent challenged my preference for a particular database design. It made a strong case for a different approach. After going back and forth, I changed my mind. That's the outcome worth optimizing for — an AI that actually improves your thinking, one that treats your ideas as hypotheses to test rather than instructions to follow.
 
-The agent looked at ChatGPT's analysis, engaged with it, agreed with most of it, and then pushed back on something else — whether to have a centralized jobs table or separate tables per domain entity. It actually told me I was wrong. Which, by the way, is exactly what you want from an AI agent. Not compliance. Pushback. That's why I have anti-sycophancy rules in my agent.md — it literally says "don't be afraid to disagree." Without that, you'd just get a model that nods along to whatever you say, and then you ship bad architecture with a confident smile.
+---
 
-This is also where the concept of _grilling_ comes in (thanks [Matt Pocock](https://www.skills.sh/mattpocock/skills/grill-with-docs)!). Grilling isn't one-sided. It's not just the agent asking me questions, and it's not just me telling the agent what to do. It's a hybrid. I ask the agent what it thinks is best. The agent asks me clarifying questions about what I actually want. We go back and forth until we've stress-tested the idea from both sides. Sometimes I paste the agent's questions into ChatGPT to see if it agrees with the framing. Sometimes ChatGPT raises something I hadn't considered and I bring that back to the agent.
+## Grilling
 
-The whole thing becomes a three-way conversation between me and two different models, each with different strengths and different blind spots.
+This is where the idea of grilling enters the picture (thanks Matt Pocock). Grilling goes beyond asking an AI questions or telling it what to build. It's a continuous process of trying to break the current idea.
+
+The aim isn't consensus. It's surviving criticism. A good architecture isn't the first design that works. It's the one that still holds up after someone sharp has spent time looking for what's wrong with it.
+
+I'll bring the coding agent's questions into ChatGPT, or ChatGPT will raise something I hadn't considered and I'll bring that back. The whole thing starts to feel less like using a tool and more like having two senior engineers available whenever you need them.
+
+---
 
 ## The Human in the Middle
 
-Here's what makes this more than just "use two AIs." I'm in the loop the whole time. I'm not just shuttling text between models. I'm adding my own perspective, flagging things that matter to me, asking questions that neither model thought to ask.
+This is the part that makes the entire process work. I'm not shuttling text between two models. I'm deciding what matters.
 
-When I said I needed async processing, that was a product decision. A UX call. The AIs didn't know to ask about that because they don't know what I want the product to feel like. That's my job.
+On one project, I realized simulations needed to keep running asynchronously in the background even after the user closed their browser. Neither AI suggested that, because it wasn't an engineering question — it was a product question. The models can reason about the architecture once that constraint exists, but they don't know what experience I'm trying to create.
 
-And the way I interact with the agent during this phase matters too. I speak out loud. Most of the time, if something is nuanced, I'll use voice input instead of typing. Part of that is just that I think better when I speak. But there's a second benefit: the agent sees my entire thought process. It's not just getting the conclusion — "move storage to the use case" — it's getting the reasoning chain that led there. "Wait, the server action is on Netlify, which has function time limits, which means long-running operations can't live there, which means the use case is the right orchestrator."
+The best results come when I bring the models my uncertainty, not just conclusions. I don't say, "Move storage to the use case." I say something like, "I'm worried this server action is doing too much. It's running on Netlify, there are function limits, and I'm not sure this is the right boundary."
 
-That context changes how the agent responds to me. It understands *why* I'm asking, not just *what* I'm asking.
+Now the agent can engage with my reasoning, challenge the premise, look at the architecture docs, and say, "Actually, yeah — the use case should be the orchestrator here."
 
-And honestly, catching something like "server action shouldn't handle storage" — that's exactly the kind of mistake you want to catch during grilling, not after you've written two hundred lines of code. The agent had proposed writing to Supabase from the server action. I read the plan, something felt wrong, I questioned it. The agent went and read the architecture docs, realized the pattern was actually use case as orchestrator, and we fixed the plan before any code was written. That's the whole point. Catch the architectural mistake when it's still a paragraph in a design doc, not a bug in production.
+I've also found that speaking my reasoning out loud helps (I'll often use voice input for complicated decisions). Explaining the uncertainty forces me to actually articulate the problem, which means the agent can critique the reasoning instead of just reacting to a conclusion.
+
+---
 
 ## Where the Time Goes
 
-This grilling phase — the back-and-forth between me and the agents, the ping-ponging between models, the debating — this is where almost all of my coding time goes. I'm not exaggerating. If I have an hour to work on a feature, I might spend 50 minutes in this phase.
+I spend most of my time in this phase — no exaggeration. If I have an hour for a feature, I might use 50 minutes on thinking, debating, and changing my mind. The implementation tends to be the easy part. Once the architecture is solid, writing the code is almost mechanical.
 
-The plan? Mechanical. The implementation? Mechanical. Once we've debated the design and landed on something solid, turning that into a spec and then code is the easy part. The agent writes the design doc, I skim the non-goals and constraints (those matter more than the goals, usually), and then it gets turned into a plan I barely look at. The plan is essentially just the written-out code and the steps for the implementation. It's the grilling that took the real thinking.
+The real work happened upstream. For small features I skip most of this. If the change is obvious, I let the agent handle it. Anything substantial (database changes, new systems, architecture shifts) gets the full treatment, because catching a bad decision when it's a paragraph in a design doc is infinitely cheaper than catching it after you've shipped.
 
-For small features, I might skip most of this. I'll ask the agent what it thinks, read through its suggestion, and if nothing is obviously wrong, I'll go with it. The agent can one-shot small stuff pretty well.
-
-But for anything substantial — adding a database backend, redesigning an architecture, anything that touches multiple systems — the ping-pong phase is non-negotiable. That's where the quality comes from. Not from the code generation. From the thinking.
+---
 
 ## The Setup
 
-If you want to try this, here's what you actually need.
+You don't need anything complicated. You need three things.
 
-An agent with good instructions. My agent.md isn't telling the AI what syntax to use or how to format code. It's encoding engineering principles — smallest coherent change, make trade-offs explicit, understand before changing, don't be afraid to disagree. That philosophy shapes how the agent thinks, regardless of what language or framework I'm working with. It's framework agnostic. It doesn't care if I'm writing TypeScript or Python. It cares about the quality of the decisions.
+**An agent with principles.** Not formatting instructions or syntax preferences — engineering principles. Mine includes things like making the smallest coherent change, understanding before changing, making trade-offs explicit, and not being afraid to disagree. Those ideas matter more than the language or framework.
 
-A second AI for the ping-pong. I use a separate ChatGPT conversation. It has some context on my codebase already, so it's not starting from zero, but it doesn't have the full conversation history. That's the point. Fresh perspective.
+**A second perspective.** It doesn't have to be a specific model. The important part is that it isn't trapped in the same conversation and can challenge the assumptions behind the first answer.
 
-And your own voice. Literally — speak your thinking out loud to the agent. Don't just tell it what to do. Tell it *why* you're uncertain, what you're worried about, what you think might be wrong. The agent doesn't read your mind. But if you talk through your reasoning, it can engage with the actual thought, not just the output of the thought.
+**Your own reasoning.** Don't just tell the AI what you want. Explain why you're uncertain, what feels wrong, what you're worried about. The model can't read your mind, but if you expose your thinking, it can engage with the actual decision.
 
-It feels slow at first. Having two AIs debate each other while you chime in with your take sounds like overhead. But the alternative is shipping something that seemed right in the moment and realizing three days later that the architecture doesn't hold up. The grilling phase is where you catch that. Before it costs you anything.
+---
+
+## The Point
+
+People think AI makes software faster because it writes code. That's part of it, sure. But the bigger shift is that AI makes criticism cheap, and criticism is what keeps you from making bad decisions.
+
+The advantage isn't an AI that generates the most code. It's a process that produces better decisions before the code exists.
