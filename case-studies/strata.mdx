@@ -1,7 +1,7 @@
 ---
 title: "Strata: A Tiered Memory System for AI Agents"
 date: "2026-06-18"
-description: "A zero-dependency, filesystem-first tiered memory system for AI agents. Core insight: algorithmic lifecycle triggers eliminate LLM burn from routine memory management."
+description: "A zero-dependency, filesystem-first tiered memory system for AI agents. Algorithmic lifecycle triggers eliminate LLM overhead from routine memory management."
 role: "Creator & Lead Developer"
 stack: ["Python", "SQLite FTS5", "Markdown", "CLI", "MCP"]
 id: "strata"
@@ -13,87 +13,83 @@ id: "strata"
 
 ## Context
 
-Strata started in March 2026, born from a specific pain point: every AI coding agent I used started each session blank. Context from hours of conversation was gone by the next day. Decisions we'd made, bugs we'd fixed, architecture patterns we'd established — it all evaporated. Groundhog Day, but for coding.
+I built Strata because I was sick of my AI coding agents waking up with amnesia every morning. Every new session felt like day one. The agent completely forgot the architecture choices we made the night before, the bugs we spent hours tracking down, and the general flow of the codebase. It was an incredibly frustrating loop. 
 
-I was the user, the developer, and the product manager rolled into one.
+Because I was building this entirely for myself, I acted as the user, the developer, and the product manager all at once. 
 
 ---
 
 ## Problem / Product Goal
 
-The problem was simple and maddening: **AI agents have no persistent memory.**
+The core issue is that AI agents lack persistent, low-cost memory. 
 
-The existing approaches all had the same flaw: they tried to be smart all the time.
+Most existing tools try to solve this by throwing expensive engineering at the problem, but they usually fall into a few predictable traps:
 
-- **Infinite context windows** shove everything into the prompt. Reasoning degrades, tokens burn.
-- **Vector databases** dump everything into embeddings and hope the similarity search surfaces what matters. Works for facts, fails for nuance.
-- **mem0, LangMem, OpenClaw** use LLMs to constantly monitor and reorganize memory. Every query triggers a check, every operation runs a janitor loop. Great in demos, costly at scale.
+*   **Massive context windows:** Shoving everything into the prompt destroys the agent's reasoning ability and burns through tokens.
+*   **Vector databases:** Converting everything into embeddings relies too heavily on similarity search. It can find specific facts, but it completely misses the broader nuance.
+*   **Heavy LLM orchestration (mem0, LangMem):** Running an LLM to constantly watch, clean, and organize memories gets incredibly expensive. A simple query shouldn't trigger a massive background cleanup loop.
 
-I wanted something that would let an agent remember last week's architecture decision without paying GPT-4o to read a 10KB file and decide whether it was still relevant. The goal was: **a memory system that costs nothing for routine operations, only spending money when intelligence is actually required.**
+I needed a system that could pull up a design decision from two weeks ago without paying GPT-4o to read a text file just to see if it mattered. My goal was to build a memory architecture that costs nothing during normal operation, saving the expensive AI logic for when you actually need it.
 
 ---
 
 ## Thought Process
 
-My first attempt was a blog post. I sketched out a two-component system: a tiered memory store (Strata) plus a relational "agent-db" built on Postgres with pgvector. The idea was that Stratum 1 would be active files, Stratum 2 would be a Postgres-backed relational store with vector search, and Stratum 3 would be a compressed archive.
+I started by mapping out a two-part setup in a blog post. It featured a tiered storage system paired with a relational database running Postgres and pgvector. In that version, Stratum 1 held active files, Stratum 2 handled vector searches inside Postgres, and Stratum 3 was a compressed archive.
 
-I started building it. Wrote the three-tier storage layer, the janitor lifecycle logic, the CLI, the MCP server — about 11 commits in 3 days. And then I hit a wall.
+I spent three days writing the core storage layers, the CLI, and an MCP server. But after 11 commits, I realized I was building the wrong thing. 
 
-The Postgres layer was going to add:
+The Postgres setup forced a lot of unnecessary baggage into the project:
 
-- A hard dependency (must install and run Postgres)
-- Embedding costs for every file that moved between strata
-- A vector similarity query for every search
-- Schema management overhead for a feature I wasn't sure anyone needed
+*   Users had to install and run a full Postgres instance.
+*   Every single file movement incurred embedding costs.
+*   Simple lookups required complex vector queries.
+*   I was managing database schemas for an unproven feature.
 
-I sat with this for two days. I had built a perfectly good three-tier system, but Stratum 2 was a third-party dependency that made the whole thing less useful, not more.
+I paused for a couple of days to rethink the architecture. When you look closely at what a background janitor actually does, the tasks are remarkably basic. It checks a timestamp, compares it to a threshold, and moves a file. I was using an LLM for simple lifecycle logic where regular code worked perfectly fine.
 
-**The breakthrough came when I asked myself: what does the Janitor actually need?**
+So, I ripped out Postgres. Stratum 2 became a regular directory on the local filesystem. Instead of asking an LLM if a file was stale, I set a rule: if it hasn't been touched in 90 days, move it. I cut the entire embedding process out of the application.
 
-Check a timestamp. Compare it to a threshold. Maybe copy a file from one directory to another. That's the whole job. The LLM in the lifecycle loop was cargo-cult intelligence — I was adding smarts where reliability would do.
+Suddenly, the janitor went from parsing complex API responses to executing basic file copies. The test suite ran instantly. Installation turned into a quick package install and an init command (no Docker required). 
 
-I removed the Postgres layer. Made Stratum 2 a filesystem directory. Changed the eviction trigger from "LLM decides this is stale" to "file hasn't been accessed in 90 days." Cut the entire embedding pipeline.
-
-The Janitor went from "call an API and parse JSON" to "check a timestamp and maybe copy a file." The tests got faster. The install went from "pip install && docker-compose up" to "pip install && strata init." No dependencies, no ongoing costs, and the routine work runs without a single LLM call.
-
-Then I realized the Shadow Index — a simple SQLite FTS5 keyword index for archived files — was the piece that made the whole thing work. Every competing system either grows forever (mem0 keeps everything in the vector DB, costs go up linearly) or deletes permanently (old data is just gone). The Shadow Index stores only keywords, a 200-character preview, and a file path. A million entries cost less than a megabyte. When a search finds a match, the file gets rehydrated back to active automatically. You never truly lose anything — it just gets put away until you need it again.
+To make this architecture work, I built the Shadow Index using SQLite FTS5. Other memory tools either hoard data forever or delete it entirely. The Shadow Index takes a different approach by saving only keywords, a brief preview, and the file path. You can store a million entries in less than a megabyte. If a search hits an archived file, the system automatically pulls it back into the active directory.
 
 ---
 
 ## Solution
 
-**Strata is a three-tier filesystem memory system for AI agents, powered by an algorithmic janitor.**
+**Strata manages agent memory across three filesystem tiers using an algorithmic janitor.**
 
 ### Tier 1: Active
 
-Plain markdown files in `active/`. The agent reads and writes directly. An auto-generated `index.md` lists every file with its first heading as description — no vector database needed. Latency: ~1ms. Cost: zero.
+This tier holds raw markdown files inside an `active/` directory. The agent interacts with these files directly. A script automatically generates an `index.md` file using the first heading of each document, bypassing the need for a database. It runs with sub-millisecond latency and costs nothing.
 
 ### Tier 2: Cooled
 
-Files move here when they exceed configurable age thresholds (14 days for projects, 60 for entities, 7 for GTD). Still plain markdown, just in a different directory. Read-only via search. If a cooled file gets accessed ≥3 times, it's automatically promoted back to active. **Bidirectional lifecycle.**
+When files hit specific age limits (like 14 days for active projects or 7 days for tasks), they move here. They stay as plain markdown but shift to a read-only search directory. If an agent hits a cooled file three times, the system promotes it back to the active tier.
 
 ### Tier 3: Archive
 
-Files not accessed for 90 days get archived. Full content saved as JSON. A Shadow Index (SQLite FTS5) keeps everything keyword-searchable — no vectors, no embeddings. When a search hits the archive, the file is automatically rehydrated back to active.
+Files untouched for 90 days drop into the archive as JSON. The SQLite FTS5 Shadow Index keeps these files searchable by keyword without using vectors. A successful search automatically rehydrates the archived file back to the active tier.
 
 ### The Janitor
 
-The only process that moves data between tiers. Four operations — migrate, evict, promote, rehydrate — all driven by file age and access count. Zero LLM calls. The daemon runs on a 15-minute interval, first cycle always a dry run.
+A lightweight background process handles all data migration (moving, evicting, promoting, and rehydrating) based strictly on file age and access frequency. It requires zero LLM calls. The process runs every 15 minutes, always starting with a safe dry-run cycle.
 
-### Integration with Pi (coding agent)
+### Agent Integration
 
-A pi extension hook saves every conversation transcript automatically. An optional background distiller runs a cheap LLM (GPT-4o-mini, ~$0.01 per cycle) to extract facts. An MCP server exposes Strata tools over JSON-RPC 2.0. A skill install command supports 55+ agent formats.
+An extension hook automatically saves chat transcripts from the coding agent. A background script can run a cheap model (like GPT-4o-mini) to pull out key facts for pennies. The system includes an MCP server to expose these tools over JSON-RPC, alongside an installation script that configures the setup for various agent platforms.
 
 ---
 
 ## Takeaways
 
-**The Janitor doesn't need to be smart.** This was the single most important decision in the project. I almost built a system where every lifecycle operation required an LLM call. Removing that dependency made the system simpler, faster, cheaper, and more reliable. The lesson was straightforward: filesystem operations are simple, and that's a feature, not a limitation.
+**Keep the automation simple.** Letting go of the idea that the lifecycle manager needed to be smart changed everything. Replacing LLM calls with basic filesystem operations made the tool faster, cheaper, and vastly more dependable. 
 
-**The Shadow Index was an afterthought that made the whole thing special.** I added it for completeness. Competitors (mem0, QMD, OpenClaw) can't replicate it — they either grow forever or delete permanently. Sometimes the features that matter most come from what you build on the side, not what you planned.
+**The Shadow Index solved the retention problem.** I originally built the index just to check a box, but it became the core feature that sets the project apart. It avoids the endless growth of vector databases while preventing permanent data loss. 
 
-**Path matching is harder than it looks.** The config system needs to apply different decay rates for different content types — "pi/conversations" should decay faster than "pi/entities." Getting the multi-component path prefix matching right (with edge cases like "pi/conversations/longer/path" correctly matching "pi/conversations") took three attempts. The solution was checking progressively longer path prefixes in a loop — simple, correct, testable.
+**Path matching requires precision.** Setting different expiration rates for different directories (like conversations versus core entities) gets tricky quickly. Handling edge cases for deeply nested paths took me three tries to get right. Loop-based prefix matching turned out to be the cleanest approach.
 
-**Write-time simplicity, pay at read time.** The distiller writes append-only facts without dedup. Multiple facts about the same entity can coexist. The agent reconciles them by timestamp at read time. This sounds wasteful, but keeping the write path simple prevented a cascade of complexity (merge logic, conflict resolution, versioning) that would never have been worth it for a single-user tool.
+**Optimize for simple writes.** The system appends facts without checking for duplicates, meaning multiple versions of the same information can live side by side. The agent resolves any conflicts by checking the timestamps when it reads the data. This keeps the write path incredibly fast and avoids complex version-tracking logic.
 
-**Forgetting is the feature.** I started with "how do I store everything?" The right question was "how do I store each memory at the fidelity it deserves?" Information decays on purpose. That's what makes memory useful.
+**Data decay is useful.** I started this project trying to save every single detail. Eventually, I realized that letting old information fade into the background is exactly what makes a memory system work.

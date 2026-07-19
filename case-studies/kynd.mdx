@@ -11,96 +11,89 @@ id: "kynd"
 
 ---
 
-## Context
-
-Kynd started as DeepBound, a project I began in early 2026. The trigger was a UC Berkeley paper on "deep binding of LLM virtual personas" (Moon, Kang et al., 2024). The paper showed that LLMs produce much more realistic human behavior when you give them rich narrative backstories instead of simple demographic prompts.
-
-At the time, every "AI persona" tool on the market was a chatbot with a character description slapped in the system prompt. They didn't simulate test users. They produced stereotypes.
-
-I'm the sole developer and product lead.
-
----
-
 ## Problem / Product Goal
 
-Early-stage founders need to validate their product with real users before building. But recruiting human test participants is slow, expensive, and doesn't scale. Run five user testing sessions and you get five data points. What if you need feedback on fifty variations of your pricing page? The math doesn't work.
+When you are an early-stage founder, you need to validate your product ideas with real people before spending months building them. But finding, recruiting, and scheduling human testers takes forever, costs too much money, and scales horribly. If you run five user testing sessions, you walk away with exactly five data points. That completely falls apart when you need feedback on fifty different variations of a new pricing page. 
 
-Even worse: a researcher who's run 20 interviews cannot simulate how those 20 people would react to 5 different feature concepts. The insight is locked in transcripts, frozen in time. The feedback loop — the most critical cycle in product development — is bottlenecked by human availability.
+The bigger issue is that human insight gets trapped in time. A researcher who just wrapped up twenty user interviews cannot sit down and accurately predict how those exact twenty people would react to five entirely new feature concepts. The data stays frozen in text transcripts. The product feedback loop represents the single most important cycle in any startup, yet it remains completely bottle-necked by human scheduling.
 
-Kynd's goal was to close that gap: **generate realistic, opinionated synthetic personas from minimal input, then run them against live websites to get structured behavioral feedback at scale.**
+I built Kynd to break through that exact limitation. The goal was simple: spin up realistic, opinionated synthetic personas using minimal initial inputs, then drop them onto live websites to collect structured, behavioral feedback at scale.
 
 ---
 
 ## Thought Process
 
-I started by implementing the Moon et al. technique directly — narrative backstories as extended interview transcripts dropped into an LLM system prompt. It worked better than demographic-only prompts, but not by enough. Personas drifted toward "helpful assistant" behavior after 3-4 conversation turns. They were too agreeable. They didn't push back on pricing pages the way a real budget-conscious user would.
+I started by copying the Berkeley technique directly. I generated narrative backstories as extended interview transcripts and fed them into the system prompt. It definitely beat basic demographic targeting, but the personas still started losing their edge after three or four turns. They quickly drifted right back into behaving like a polite, agreeable AI assistant. They wouldn't push back on a high price tag the way a real, cash-strapped buyer actually does.
 
-So I spent a month reading the research literature. Everything I could find on persona prompting, inference-time techniques, and LLM evaluation. Here's what I found:
+Because of that, I spent a solid month reading through every piece of literature I could find on inference-time guardrails, persona tracking, and psychometric evaluation. I pulled together a stack of separate research-backed techniques to see what would stick:
 
-- **Compartmentalized prompts** (Wang 2024b): Splitting the persona definition into 4 distinct compartments (`<<PERSONA IDENTITY>>`, `<<PSYCHOGRAPHIC PROFILE>>`, `<<EPISTEMIC BOUNDARIES>>`, `<<BEHAVIORAL GUARDRAILS>>`) prevents attention dilution. The LLM can't "forget" who it is because the identity is structured, not a blob of text.
-- **PB&J scaffolds** (Joshi 2025): Psychological frameworks — values, fears, decision-making styles — improve persona adherence by 6-9%. But they cost an extra LLM call to generate.
-- **Persona anchors** (SyTTA, Atri 2026): 4-16 token identifiers injected every turn reduce drift by 40-60%. Triple injection (header, pre-history, pre-generation) works best.
-- **ID-RAG** (Tan 2025): Retrieving relevant persona backstory chunks during inference grounds the persona in factual context.
+*   **Compartmentalized prompts** (Wang 2024b): I split the core definition into four distinct sections (`<<PERSONA IDENTITY>>`, `<<PSYCHOGRAPHIC PROFILE>>`, `<<EPISTEMIC BOUNDARIES>>`, `<<BEHAVIORAL GUARDRAILS>>`). This keeps the model focused on specific boundaries so it doesn't drop character.
+*   **PB&J scaffolds** (Joshi 2025): Adding structured values and deep fears directly into the persona framework bumped character adherence by 6-9%, even though it required an extra LLM call to build the profile.
+*   **Persona anchors** (SyTTA, Atri 2026): Injecting short, 4-16 token identifier tags across every single turn cut character drift by nearly half. I found the best results came from a triple-injection method (putting them in the header, right before the chat history, and immediately ahead of the final generation block).
+*   **ID-RAG** (Tan 2025): This pulls pieces of the persona's backstory into active memory mid-turn to keep responses grounded in their fictional history.
 
-I implemented all of them. It still wasn't enough.
+I built all of these into the engine, but the real breakthrough came from a completely different direction.
 
-**The breakthrough came from an unexpected direction: the r &lt; 0.26 ceiling.**
+### Cracking the $r < 0.26$ Ceiling
 
-I was working on an interview-to-persona pipeline — the idea that you could upload raw interview transcripts and Kynd would generate personas from them. My naive approach was to extract personality traits (Big Five OCEAN scores) from the transcripts using zero-shot LLM extraction. But research by Zhu et al. (2025) showed this maxes at r &lt; 0.26 correlation with actual personality scores. You literally cannot extract reliable personality traits from interview transcripts. This is a fundamental ceiling, not something you can fix with prompt engineering.
+I was working on a feature that let users upload raw customer interview transcripts to generate matching personas automatically. At first, I tried using zero-shot LLM prompts to pull Big Five personality scores straight from the text. Then I found a paper by Zhu et al. (2025) showing that this specific approach hits a hard ceiling, maxing out at a terrible $r < 0.26$ correlation with actual human personality metrics. You cannot reliably pull personality scores out of an interview transcript; it is a mathematical wall that prompt engineering cannot fix.
 
-This changed my entire approach. Instead of extracting personality, I extracted only *directly observable signals* — pain points, goals, values with verbatim quotes. Things an interviewer would actually note down. Then I pooled those signals across all interviews, deduplicated by trigram similarity, and used the resulting frequency distribution to *generate* personality consistent with those signals.
+That data forced me to flip the entire pipeline on its head. I stopped trying to guess personality traits from the text. Instead, I wrote prompts to extract only directly observable data points (things like specific daily frustrations, explicit product goals, and exact verbatim quotes). 
 
-The pipeline went from "extract → generate" to "extract only what's observable → pool mathematically → sample from distribution → generate personality consistent with the data." It bypasses the r &lt; 0.26 ceiling entirely because it never extracts personality at all.
+Once I had those concrete signals, I pooled them across every uploaded interview, ran a mathematical trigram-similarity deduplication step, and used that frequency layout to generate a brand-new personality that naturally matched the observed data. The architecture went from a naive extraction guess to a data-driven sampling pipeline. It entirely skips the $r < 0.26$ bottleneck because it never attempts to extract abstract traits from raw text in the first place.
 
-The second breakthrough came from the pricing analysis feature. I built it as a streaming pipeline — every persona streams its analysis back in real-time. It was unreliable. Weak schema enforcement, brittle timeout handling, Next.js HMR killing server-side stores mid-analysis. Every demo I ran had at least one persona drop out. I spent two weeks trying to fix streaming before admitting the architecture was wrong.
+### Giving Up on Streaming
 
-I ripped out the streaming and replaced it with completion-based analysis: Zod schema validation, a strict 3-minute timeout per persona enforced by AbortController, globalThis for store persistence across HMR cycles, and a comprehensive AnalysisLogger. The result was boring, predictable, and stable. **It's better to wait 3 minutes for a complete answer than to get 80% in 30 seconds with errors.**
+The second major shift happened inside the pricing analysis engine. I originally built it around a heavy streaming pipeline so you could watch each persona evaluate a page in real-time. It was incredibly brittle. Schema enforcement was weak, timeouts caused regular crashes, and Next.js HMR would occasionally wipe out our server-side stores mid-run. Every single live demo ended up dropping at least one persona.
+
+I spent two weeks writing patches for the streaming code before admitting the core setup was simply wrong for this use case. I tore the whole thing out and replaced it with a completion-based setup. I forced strict Zod validation, added a 3-minute max timeout tied to an `AbortController`, hooked up `globalThis` to preserve active stores during code reloads, and wrote an explicit `AnalysisLogger`. 
+
+The system became a lot more boring, but it became completely stable. It is always better to make a user wait three minutes for a flawless, structured dataset than to hand them a broken UI in thirty seconds.
 
 ---
 
 ## Solution
 
-**Kynd generates high-fidelity synthetic personas and runs them against live websites for automated user testing.**
+Kynd connects high-fidelity synthetic personas directly to automated browser environments to run hands-off user testing on live sites.
 
 ### The Inference Stack
 
-Six research-backed techniques layered into a coherent system:
+The core engine layers six independent techniques to keep the simulation accurate:
 
-- **Narrative backstories** (Moon 2024) — 14-18% better alignment
-- **Compartmentalized prompts** (Wang 2024b) — 4 compartments prevent drift
-- **PB&J scaffolds** (Joshi 2025) — 6-9% better adherence
-- **Persona anchors** (SyTTA 2026) — 40-60% drift reduction
-- **ID-RAG** (Tan 2025) — factual grounding via chunk retrieval
-- **InCharacter + PICon evaluation** — multi-turn consistency checking
+*   **Narrative backstories** (Moon 2024) — Boosts human behavioral alignment by 14-18%.
+*   **Compartmentalized prompts** (Wang 2024b) — Four explicit zones lock down model focus.
+*   **PB&J scaffolds** (Joshi 2025) — Structured fears and values improve character retention.
+*   **Persona anchors** (SyTTA 2026) — Multi-place token injection stops assistant drift.
+*   **ID-RAG** (Tan 2025) — Contextual vector retrieval keeps responses factually grounded.
+*   **InCharacter + PICon** — Continuous background cross-examination to catch character contradictions.
 
 ### Architecture
 
-Hexagonal Architecture with strict dependency flow inward: UI → Actions → Application → Domain (pure TypeScript, zero external deps) → Infrastructure (adapters implement ports).
+The system uses a strict Hexagonal Architecture layout where all dependencies point straight inward. The UI talks to Server Actions, which trigger Application use cases. These coordinate pure TypeScript entities in the Domain layer (which features zero external npm dependencies) before executing tasks through Infrastructure adapters.
 
-10 port interfaces define every external dependency. Key adapters include `PersonaPromptCompiler` (4-compartment prompt builder), `IdRagStore` (n-gram retrieval), `VisionAnalysisAdapter` (Qwen VL for pricing page vision), and `InCharacterEvaluator` (psychometric evaluation).
+Ten explicit port interfaces handle every single outside service connection. The key infrastructure adapters include `PersonaPromptCompiler`, `IdRagStore` for swift local lookups, `VisionAnalysisAdapter` (which utilizes Qwen VL to read web layouts visually), and `RemotePlaywrightAdapter` to handle live browser automation.
 
 ### Key Features
 
-- **Persona Creation Pipeline:** text description → brainstorm → narrative backstory → PB&J scaffolds → behavioral insights → ID-RAG ingestion
-- **Pricing Analysis Engine:** Two-phase flow (Playwright scouting of URL → parallel persona analysis with concurrency 5). Completion-based with Zod validation, 3-min timeout
-- **Interview-to-Persona Pipeline:** Extract observable signals → trigram-similarity pooling → weighted sampling → persona generation → ID-RAG ingestion. 20 interviews → 40 personas in under 60 seconds
-- **Debate Room:** Multi-persona round-based debate with streaming, human interjection, any number of participants
-- **Chat with ID-RAG:** Compartmentalized prompt + anchors every turn + periodic re-grounding
+*   **Persona Creation Pipeline:** Processes raw text notes through a structured brainstorm, narrative generation, psychological scaffolding, and final vector indexing.
+*   **Pricing Analysis Engine:** A clean, two-part flow. Playwright goes out to scout the target URL, extracts the DOM layout, and then runs up to 5 personas in parallel using completion-based vision logic and Zod validation.
+*   **Interview-to-Persona Pipeline:** Extracts observable user issues, matches them using trigram-similarity pooling, samples from that frequency distribution, and spins up matching personas. It can transform 20 raw interviews into 40 distinct, ready-to-test personas in less than 60 seconds.
+*   **Debate Room:** Lets you throw a product feature proposal into a multi-persona chat room to watch different customer segments argue the pros and cons in a structured event loop.
 
-### Model Strategy
+### Model Setup
 
-Tiered LLM selection: DeepSeek V4 Flash (text generation, reasoning, extraction), Qwen VL 30B A3B (vision analysis), Claude Sonnet 4 (browser agent thinking where quality is critical). Concurrency limits: 20 LLM calls max, 5 parallel persona analyses.
+The platform uses a tiered routing strategy to keep costs reasonable. DeepSeek V4 Flash handles the heavy text processing, fast data extraction, and general reasoning tasks. Qwen VL 30B A3B manages visual page evaluations, while Claude Sonnet 4 is reserved specifically for the browser agent's internal reasoning loop, where navigation execution demands absolute precision.
 
 ---
 
 ## Takeaways
 
-**The r &lt; 0.26 ceiling taught me to read the literature before building.** I spent a week on a feature (personality extraction from transcripts) that research said was impossible. A literature review before implementation would have saved that week. I now start every feature with a targeted literature search.
+Hitting that $r < 0.26$ personality ceiling taught me to thoroughly review the literature before sitting down to write a line of code. I wasted an entire week building an extraction tool that academic papers had already proved was mathematically impossible. Now, I start every complex feature with a deep dive into recent research papers to see where the real engineering boundaries live.
 
-**Streaming is wrong for structured data analysis.** Streaming is great for chat. It's terrible for validated, aggregated, dashboard-ready analysis. The completion-based overhaul was painful but necessary. I should have started there instead of chasing the streaming UX dopamine hit.
+I also learned that streaming is completely wrong for structured data evaluation. It works beautifully for a conversational chat window, but it is a nightmare for building validated, dashboard-ready datasets. Overhauling the architecture to use a completion layout was painful, but it was necessary. I should have prioritized system stability over chasing a flashy streaming UX.
 
-**No single technique carries the whole load.** Each inference-time technique contributes a few percentage points. The magic is in the layering — compartmentalized prompts alone aren't enough, PB&J alone isn't enough, anchors alone aren't enough. The system is the combination. I almost shipped with just narrative backstories, and the product would have been mediocre.
+System fidelity is about layering, not finding a single silver bullet. No individual prompt technique carries the weight of the system on its own. Compartmentalization, anchors, and RAG each add a minor improvement to the persona's accuracy, but the real value comes from how they operate together. If I had shipped the app using only the narrative backstory paper, the personas would have turned out completely mediocre.
 
-**The GitHub repo is still `jeremykamber/deepbound`** for backward compatibility. The product name is Kynd. I should rename it but haven't prioritized that over feature work.
+On a minor note, the GitHub repository is still hosted at `jeremykamber/deepbound` to keep existing links alive. The product is named Kynd, and I really need to get around to updating the repo name, but it is tough to prioritize that over shipping active feature work.
 
-**What I'd do differently:** I'd build the interview-to-persona pipeline first. The pricing analysis engine got the most feature attention early on, but the pipeline is the more interesting technical contribution. It's the feature that actually separates Kynd from every other persona tool.
+If I could do the whole project over again, I would build the interview-to-persona pipeline on day one. The pricing analysis tool took up most of my early developer focus, but the pipeline is a much more interesting piece of software. It is the core feature that actually separates Kynd from typical persona generators.
