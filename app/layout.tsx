@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { Nav } from "@/components/nav";
-import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -60,10 +59,15 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const gaId = process.env.NEXT_PUBLIC_GA_ID;
-
 	return (
 		<html lang="en">
+			<head>
+				<script
+					type="module"
+					src="https://static.cloudflareinsights.com/beacon.min.js"
+					data-cf-beacon='{"token": "ed3690474d3a40d980fb17212db2390a"}'
+				/>
+			</head>
 			<body
 				className={`dark ${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground min-h-screen flex flex-col items-center`}
 			>
@@ -136,9 +140,8 @@ export default function RootLayout({
 							</div>
 						</div>
 					</footer>
-				</div>
-				{gaId && <GoogleAnalytics gaId={gaId} />}
-			</body>
+			</div>
+		</body>
 		</html>
 	);
 }

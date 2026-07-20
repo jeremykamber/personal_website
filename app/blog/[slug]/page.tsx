@@ -2,7 +2,6 @@ import { getPostBySlug, getPosts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Metadata } from "next";
-import { PostTracker } from "@/components/analytics-tracker";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ReadingProgress } from "@/components/reading-progress";
@@ -62,7 +61,6 @@ export default async function BlogPost(props: Props) {
   return (
     <article className="max-w-2xl mx-auto py-12">
       <ReadingProgress />
-      <PostTracker title={post.title} slug={params.slug} />
 
       <Link
         href="/blog"

@@ -2,7 +2,6 @@ import { getCaseStudyBySlug, getCaseStudies } from "@/lib/case-studies";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Metadata } from "next";
-import { PostTracker } from "@/components/analytics-tracker";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -43,7 +42,6 @@ export default async function CaseStudyPage(props: Props) {
 return (
     <article className="py-12">
       <ReadingProgress />
-      <PostTracker title={study.title} slug={params.slug} />
 
       <Link
         href="/portfolio"
