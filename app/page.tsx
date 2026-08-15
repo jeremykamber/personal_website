@@ -83,13 +83,13 @@ export default function Home() {
 							</h2>
 						</a>
 						<p className="text-muted-foreground leading-relaxed max-w-prose">
-							I published the workflow I use to build software with AI agents:
-							a beat-based system — pickup, understand, decide, design,
-							implement, verify, debrief — with a gate after every beat. You
-							stay the pilot; the agent does one job at a time, and every
-							session should leave better software and better understanding —
-							both, or it&apos;s incomplete. The repo also includes teach, a
-							tutoring skill grounded in learning science.
+							I published the workflow I use to build software with AI agents.
+							It&apos;s organized into beats: pickup, understand, decide,
+							design, implement, verify, debrief. Each beat ends with a gate.
+							You stay the pilot. The agent does one job at a time. The point
+							is that every session leaves better software and better
+							understanding. One without the other is incomplete. The repo
+							also includes teach, a tutoring skill based on learning science.
 						</p>
 						<a
 							href="https://github.com/jeremykamber/jnk-skills"
