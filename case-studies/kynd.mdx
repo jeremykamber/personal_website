@@ -56,6 +56,13 @@ The system became a lot more boring, but it became completely stable. It is alwa
 
 Kynd connects high-fidelity synthetic personas directly to automated browser environments to run hands-off user testing on live sites.
 
+<Screenshot
+  src="/kynd_screenshots/kynd-wide.png"
+  alt="The Kynd persona library showing five generated personas, each with psychometric trait bars and a decision style"
+  label="Kynd · Persona Library"
+  caption="A batch of personas generated from a single product description — each with an independent psychometric profile, values, and decision style."
+/>
+
 ### The Inference Stack
 
 The core engine layers six independent techniques to keep the simulation accurate:
@@ -79,6 +86,13 @@ Ten explicit port interfaces handle every single outside service connection. The
 *   **Pricing Analysis Engine:** A clean, two-part flow. Playwright goes out to scout the target URL, extracts the DOM layout, and then runs up to 5 personas in parallel using completion-based vision logic and Zod validation.
 *   **Interview-to-Persona Pipeline:** Extracts observable user issues, matches them using trigram-similarity pooling, samples from that frequency distribution, and spins up matching personas. It can transform 20 raw interviews into 40 distinct, ready-to-test personas in less than 60 seconds.
 *   **Debate Room:** Lets you throw a product feature proposal into a multi-persona chat room to watch different customer segments argue the pros and cons in a structured event loop.
+
+<Screenshot
+  src="/kynd_screenshots/kynd-tall.png"
+  alt="A completed Kynd pricing analysis on jobright.ai listing top findings, supporting persona evidence, and impact"
+  label="Kynd · Analysis"
+  caption="A completed pricing analysis on a live site — top findings ranked by how many personas surfaced them, each backed by direct evidence and impact."
+/>
 
 ### Model Setup
 

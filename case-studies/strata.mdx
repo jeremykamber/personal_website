@@ -60,6 +60,14 @@ To make this architecture work, I built the Shadow Index using SQLite FTS5. Othe
 
 **Strata manages agent memory across three filesystem tiers using an algorithmic janitor.**
 
+<Screenshot
+  src="/strata_screenshots/strata-cli.png"
+  alt="The strata search command showing ranked results from the active, cooled, and archive tiers"
+  label="strata — zsh"
+  variant="terminal"
+  caption="One search spans all three tiers — active results rank highest, and an archived hit triggers automatic rehydration back into the active directory."
+/>
+
 ### Tier 1: Active
 
 This tier holds raw markdown files inside an `active/` directory. The agent interacts with these files directly. A script automatically generates an `index.md` file using the first heading of each document, bypassing the need for a database. It runs with sub-millisecond latency and costs nothing.

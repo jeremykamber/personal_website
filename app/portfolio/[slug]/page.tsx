@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ReadingProgress } from "@/components/reading-progress";
+import { Screenshot } from "@/components/screenshot";
 
 type Props = {
   params: Promise<{
@@ -77,7 +78,7 @@ return (
         prose-p:leading-relaxed prose-p:text-muted-foreground prose-p:text-lg
         prose-code:text-sm
         prose-pre:overflow-x-auto prose-pre:bg-card prose-pre:border prose-pre:border-border">
-        <MDXRemote source={study.content} />
+        <MDXRemote source={study.content} components={{ Screenshot }} />
       </div>
 
       <footer className="mt-20 pt-8 border-t border-border">
