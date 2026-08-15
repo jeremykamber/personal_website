@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/scroll-reveal";
+import { Screenshot } from "@/components/screenshot";
 
 export default function Home() {
 	return (
@@ -42,22 +43,68 @@ export default function Home() {
 					<span>Featured projects</span>
 					<span className="text-border">·</span>
 					<Link
-						href="/portfolio/strata"
-						className="hover:text-docklight transition-all duration-300 ease-expo hover:underline hover:underline-offset-4 hover:decoration-docklight/30 font-medium"
-					>
-						Strata
-					</Link>
-					<span className="text-border">·</span>
-					<Link
 						href="/portfolio/kynd"
 						className="hover:text-docklight transition-all duration-300 ease-expo hover:underline hover:underline-offset-4 hover:decoration-docklight/30 font-medium"
 					>
 						Kynd
 					</Link>
+					<span className="text-border">·</span>
+					<Link
+						href="/portfolio/strata"
+						className="hover:text-docklight transition-all duration-300 ease-expo hover:underline hover:underline-offset-4 hover:decoration-docklight/30 font-medium"
+					>
+						Strata
+					</Link>
 				</div>
 			</section>
 
 			<div className="w-full h-px bg-border/50" />
+
+			{/* New release */}
+			<section className="space-y-4">
+				<ScrollReveal>
+					<div className="flex items-center gap-3">
+						<div className="w-6 h-px bg-docklight" />
+						<span className="text-xs font-medium text-docklight uppercase tracking-widest">
+							New release
+						</span>
+					</div>
+				</ScrollReveal>
+				<ScrollReveal delay={100}>
+					<div className="space-y-3">
+						<a
+							href="https://github.com/jeremykamber/jnk-skills"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="group inline-block"
+						>
+							<h2 className="text-2xl font-bold tracking-tight group-hover:text-docklight transition-colors">
+								jnk-skills: A Development Workflow for AI Agents
+							</h2>
+						</a>
+						<p className="text-muted-foreground leading-relaxed max-w-prose">
+							I published the workflow I use to build software with AI agents:
+							a beat-based system — pickup, understand, decide, design,
+							implement, verify, debrief — with a gate after every beat. You
+							stay the pilot; the agent does one job at a time, and every
+							session should leave better software and better understanding —
+							both, or it&apos;s incomplete. The repo also includes teach, a
+							tutoring skill grounded in learning science.
+						</p>
+						<a
+							href="https://github.com/jeremykamber/jnk-skills"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-docklight transition-colors group"
+						>
+							Get the skills on GitHub
+							<span className="transition-transform group-hover:translate-x-0.5">
+								→
+							</span>
+						</a>
+					</div>
+				</ScrollReveal>
+			</section>
 
 			{/* Featured Work */}
 			<section className="space-y-6">
@@ -70,22 +117,30 @@ export default function Home() {
 					</div>
 				</ScrollReveal>
 
-				{/* Strata */}
+				{/* Kynd */}
 				<ScrollReveal delay={100}>
 					<div className="space-y-3">
-						<Link href="/portfolio/strata" className="group inline-block">
+						<Link href="/portfolio/kynd" className="group inline-block">
 							<h2 className="text-2xl font-bold tracking-tight group-hover:text-docklight transition-colors">
-								Strata: A Tiered Memory System for AI Agents
+								Kynd: AI-Powered User Testing with Synthetic Personas
 							</h2>
 						</Link>
+						<Link href="/portfolio/kynd" className="group block max-w-lg">
+							<Screenshot
+								src="/kynd_screenshots/kynd-wide.png"
+								alt="The Kynd persona library showing five generated personas, each with psychometric trait bars and a decision style"
+								label="Kynd · Persona Library"
+								className="my-4 transition-opacity group-hover:opacity-80"
+							/>
+						</Link>
 						<p className="text-muted-foreground leading-relaxed max-w-prose">
-							A zero-dependency tiered memory system built for AI agents.
-							Separates algorithmic lifecycle triggers from LLM compression so
-							you only pay for intelligence when it&apos;s needed. 137+ tests,
-							3-tier architecture, filesystem-first design.
+							Generate realistic synthetic personas from minimal input and run
+							them against live websites for automated user testing, pricing
+							analysis, and behavioral research. Built with Hexagonal
+							Architecture and six research-backed inference-time techniques.
 						</p>
 						<Link
-							href="/portfolio/strata"
+							href="/portfolio/kynd"
 							className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-docklight transition-colors group"
 						>
 							Read the case study
@@ -96,22 +151,31 @@ export default function Home() {
 					</div>
 				</ScrollReveal>
 
-				{/* Kynd */}
+				{/* Strata */}
 				<ScrollReveal delay={200}>
 					<div className="space-y-3">
-						<Link href="/portfolio/kynd" className="group inline-block">
+						<Link href="/portfolio/strata" className="group inline-block">
 							<h2 className="text-2xl font-bold tracking-tight group-hover:text-docklight transition-colors">
-								Kynd: AI-Powered User Testing with Synthetic Personas
+								Strata: A Tiered Memory System for AI Agents
 							</h2>
 						</Link>
+						<Link href="/portfolio/strata" className="group block max-w-lg">
+							<Screenshot
+								src="/strata_screenshots/strata-cli.png"
+								alt="The strata search command showing ranked results from the active, cooled, and archive tiers"
+								label="strata — zsh"
+								variant="terminal"
+								className="my-4 transition-opacity group-hover:opacity-80"
+							/>
+						</Link>
 						<p className="text-muted-foreground leading-relaxed max-w-prose">
-							Generate realistic synthetic personas from minimal input and run
-							them against live websites for automated user testing, pricing
-							analysis, and behavioral research. Built with Hexagonal
-							Architecture and six research-backed inference-time techniques.
+							A zero-dependency tiered memory system built for AI agents.
+							Separates algorithmic lifecycle triggers from LLM compression so
+							you only pay for intelligence when it&apos;s needed. 137+ tests,
+							3-tier architecture, filesystem-first design.
 						</p>
 						<Link
-							href="/portfolio/kynd"
+							href="/portfolio/strata"
 							className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-docklight transition-colors group"
 						>
 							Read the case study
