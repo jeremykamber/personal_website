@@ -8,32 +8,52 @@ export default function Home() {
 		<div className="space-y-14">
 			{/* Hero */}
 			<section className="group/hera space-y-6">
-				<div className="space-y-6">
-					<h1 className="animate-fade-up text-4xl min-[400px]:text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter text-foreground leading-[1.1] sm:leading-none transition-[text-shadow] duration-500 ease-expo hover:[text-shadow:0_0_60px_oklch(0.62_0.09_220/0.12)]">
-						Jeremy Kamber
-					</h1>
-					<div
-						className="animate-fade-up w-20 h-[1.5px] bg-docklight transition-all duration-500 ease-expo group-hover/hera:w-28 group-hover/hera:h-[2px] group-hover/hera:opacity-90"
-						style={{ animationDelay: "100ms" }}
-					/>
-					<p
-						className="animate-fade-up text-base text-muted-foreground leading-relaxed max-w-prose"
-						style={{ animationDelay: "200ms" }}
-					>
-						Full-stack Developer and Product Manager based in Seattle. I build
-						AI products with a focus on making LLMs feel more human.
-					</p>
-					<div
-						className="animate-fade-up flex items-center gap-3"
-						style={{ animationDelay: "300ms" }}
-					>
-						<Link href="/portfolio" prefetch={false}>
-							<Button>View work</Button>
-						</Link>
-						<a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
-							<Button variant="outline">Resume</Button>
-						</a>
+				<div className="grid gap-8 sm:grid-cols-[minmax(0,1fr)_18rem] sm:gap-10 md:gap-12 items-start">
+					<div className="space-y-6">
+						<h1 className="animate-fade-up text-4xl min-[400px]:text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter text-foreground leading-[1.1] sm:leading-none transition-[text-shadow] duration-500 ease-expo hover:[text-shadow:0_0_60px_oklch(0.62_0.09_220/0.12)]">
+							Jeremy Kamber
+						</h1>
+						<div
+							className="animate-fade-up w-20 h-[1.5px] bg-docklight transition-all duration-500 ease-expo group-hover/hera:w-28 group-hover/hera:h-[2px] group-hover/hera:opacity-90"
+							style={{ animationDelay: "100ms" }}
+						/>
+						<p
+							className="animate-fade-up text-base text-muted-foreground leading-relaxed max-w-prose"
+							style={{ animationDelay: "200ms" }}
+						>
+							Full-stack Developer and Product Manager based in Seattle. I build
+							AI products with a focus on making LLMs feel more human.
+						</p>
+						<div
+							className="animate-fade-up flex items-center gap-3"
+							style={{ animationDelay: "300ms" }}
+						>
+							<Link href="/portfolio" prefetch={false}>
+								<Button>View work</Button>
+							</Link>
+							<a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+								<Button variant="outline">Resume</Button>
+							</a>
+						</div>
 					</div>
+					{/* Portrait — background removed and desaturated so it sits inside the palette */}
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src="/portrait.webp"
+						alt="Jeremy Kamber"
+						width={800}
+						height={723}
+						className="animate-fade-up mx-auto block h-auto w-full max-w-[14rem] sm:mx-0 sm:max-w-none"
+						style={{
+							animationDelay: "150ms",
+							maskImage:
+								"linear-gradient(to bottom, #000 78%, transparent 100%)",
+							WebkitMaskImage:
+								"linear-gradient(to bottom, #000 78%, transparent 100%)",
+						}}
+						loading="eager"
+						fetchPriority="high"
+					/>
 				</div>
 
 				<div
