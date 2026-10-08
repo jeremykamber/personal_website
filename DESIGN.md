@@ -212,7 +212,7 @@ Shadows are reserved for **state feedback only** and kept minimal:
 - **Do** let the content breathe. Generous spacing between sections (48px+), tight spacing within components.
 - **Do** use weight and size for typographic hierarchy. Never use color to differentiate heading levels.
 - **Do** keep body text between 65–75 characters per line.
-- **Do** respect reduced-motion preferences. The grain texture overlay should not animate when `prefers-reduced-motion: reduce` is set.
+- **Do** respect reduced-motion preferences. Nothing on the page should animate when `prefers-reduced-motion: reduce` is set.
 - **Do** test every screen in both light and dark mode if light mode is maintained.
 
 ### Don't:

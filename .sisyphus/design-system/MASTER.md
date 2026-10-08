@@ -14,7 +14,6 @@ This is the source of truth for all design decisions on jeremykamber.com. All ag
 - Sharp corners (`rounded-sm` / 2px radius) - NO rounded-xl
 - High-contrast typography
 - Generous negative space
-- Subtle grain texture overlay (4% opacity)
 
 ---
 

@@ -36,4 +36,4 @@ Minimal, Sharp, Confident. The site communicates through restraint: less ornamen
 
 ## Accessibility & Inclusion
 
-Target WCAG AA+ where practical, especially contrast ratios. The strict B&W palette inherently supports high contrast. Ensure keyboard navigation, focus indicators, screen reader support, and reduced-motion accommodations throughout. The grain texture overlay must respect `prefers-reduced-motion`.
+Target WCAG AA+ where practical, especially contrast ratios. The strict B&W palette inherently supports high contrast. Ensure keyboard navigation, focus indicators, screen reader support, and reduced-motion accommodations throughout.
