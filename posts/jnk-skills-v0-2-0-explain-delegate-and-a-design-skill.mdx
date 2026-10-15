@@ -1,0 +1,35 @@
+---
+title: "jnk-skills v0.2.0: Explain, Delegate, and a Design Skill"
+date: "2026-10-15"
+description: "The first tagged release of my agent skills. A plain-English explain skill, a delegate skill for running work through agents on another machine, and a ui-design skill I tested by having an agent build a ClickUp competitor."
+---
+
+jnk-skills had no version numbers until today, so I tagged the current head as v0.2.0 and published the release on GitHub. Three changes made it worth a release.
+
+## Explain, and what teach was missing
+
+The teach skill decides what cognitive move happens next: a retrieval check, a worked example, a question that makes you commit to an answer. It said nothing about how the prose should read. Coding models default to terse, bullet-fragmented explanations, which are hard to learn from, so the teaching loop kept producing text I didn't want to read.
+
+The fix is a split. Teach picks the move, and the new explain skill writes it. Teach now loads explain at the start of a session and follows it for every message. The explain skill asks for plain English that leads with the point and builds a mental model before it adds detail.
+
+## Delegate, for work that doesn't fit in one context
+
+Some work is bigger than one agent's context, or belongs on another machine (the browser, the backend, the production data). The delegate skill handles that case. I write the brief, fan the work out over herdr to agents on that machine, and then read their diffs myself.
+
+The rule I care about most is that production is delegated and verification is not. An agent saying the tests pass only tells me what it believes. Before I accept anything, the skill sends me back to the live tree to check it.
+
+## A design skill, tested on a ClickUp competitor
+
+The third addition is ui-design. It covers components, layout, hierarchy, type, color, space, and critique, with one reference file per topic.
+
+I tested ui-design by starting a new herdr workspace with an agent and asking it to use the skill to build a frontend for TaskFlow, a fictional ClickUp competitor. It produced plain HTML, CSS, and vanilla JavaScript with no build step, and it used sample data for a sprint with grouped tasks.
+
+My first screenshot showed a loading skeleton instead of the task list. The cause was my capture timing. The page waits 650 ms before it renders, and I took the shot before that. A second capture showed the list grouped by status, with title, assignee, due date, and comment count in aligned columns.
+
+I haven't checked the board view, the task detail panel, the mobile layout, or dark mode. The agent reported all four, but I only looked at the desktop list.
+
+## Where the sources stop
+
+The `sources.md` file in the design skill marks each source as read or not read. A source counts as read only when its text was fetched and checked. Anything marked not read is named but not relied on, so a reader can see which claims rest on material I actually opened.
+
+I don't know yet whether these rules hold on a second project, or whether they only looked right on the one I chose to test.
